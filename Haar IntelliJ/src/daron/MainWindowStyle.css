@@ -1,0 +1,26 @@
+.imageView {
+    -fx-background-color: antiquewhite, white;
+    -fx-background-insets: 0, 20;
+    -fx-border-style: solid;
+    -fx-border-color: chocolate;
+    -fx-border-width: 1px;
+}
+
+.scrollPane {
+    -fx-background-color: black;
+    -fx-background: bisque;
+}
+
+.resizeCircle {
+    -fx-fill: white;
+    -fx-stroke: black;
+    -fx-stroke-type: outside;
+    -fx-stroke-width: 1px;
+}
+
+.haarLikeFeature {
+    -fx-fill: transparent;
+    -fx-stroke: black;
+    -fx-stroke-type: outside;
+    -fx-stroke-width: 1px;
+}
