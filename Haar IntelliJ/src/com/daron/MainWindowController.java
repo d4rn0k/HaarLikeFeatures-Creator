@@ -1,12 +1,10 @@
 package com.daron;
 
 import com.daron.haar.features.*;
-import com.daron.utils.IntegralImage;
+import com.daron.utils.GrayScaleConverter;
+import com.daron.utils.IntegralImageCreator;
 import com.daron.utils.MyBounds;
 import com.daron.utils.MyPoint;
-import ij.ImagePlus;
-import ij.process.ImageConverter;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -27,13 +25,15 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import static com.daron.utils.GrayScaleConverter.convertToGrayScale;
+
 
 @XmlRootElement
 public class MainWindowController {
@@ -93,7 +93,7 @@ public class MainWindowController {
     @FXML
     public Label avgLabel;
 
-    IntegralImage integralImage;
+    IntegralImageCreator openCVIntegralImageCreator;
 
     double imgWidth;
     double imgHeight;
@@ -105,11 +105,7 @@ public class MainWindowController {
     private void initialize() {
         openImage(new File("obrazek.jpg"));
 
-        haarListView.setCellFactory(lv -> {
-            HaarListViewCell cell = new HaarListViewCell();
-
-            return cell;
-        });
+        haarListView.setCellFactory(lv -> new HaarListViewCell());
 
         imageViewPane.addEventFilter(MouseEvent.ANY, event -> {
             IHaar selectedItem = haarListView.getSelectionModel().getSelectedItem();
@@ -143,6 +139,8 @@ public class MainWindowController {
         initialPointResizer.setMarginsForDrag(initialPoint.getWidth() / 2, initialPoint.getHeight() / 2)
                 .makeOnlyDraggable();
 
+        DragResizeMod.setMainWindowController(this);
+
         imageViewPane.getChildren().add(initialPoint);
         handleAddNewHaar(null);
     }
@@ -157,6 +155,7 @@ public class MainWindowController {
         fileChooser.getExtensionFilters().addAll(extFilterJPG, extFilterPNG);
 
         File file = fileChooser.showOpenDialog(null);
+
 
         openImage(file);
     }
@@ -189,17 +188,17 @@ public class MainWindowController {
                 xmlList
         );
 
-
         marshaller.marshal(xmlHaarFeature, System.out);
 
         FileChooser fc = new FileChooser();
         fc.setInitialDirectory(new File("."));
-        fc.setTitle("Zapisz cechy haara do XML!");
+        fc.setTitle("Zapisz cechy haara do pliku XML!");
 
         File file = fc.showSaveDialog(null);
         if (file == null) {
             return;
         }
+
         marshaller.marshal(xmlHaarFeature, file);
         file.createNewFile();
         System.out.println(file);
@@ -215,6 +214,10 @@ public class MainWindowController {
         addNewHaarAndSetListeners(true);
     }
 
+    void setListViewSelection(IHaar selection) {
+        haarListView.getSelectionModel().select(selection);
+    }
+
     private void addNewHaarAndSetListeners(boolean isRotated) {
 
         if (!isRotated) {
@@ -226,12 +229,12 @@ public class MainWindowController {
             haarListView.getItems().add(newHaarFeature);
 
         } else {
-            RotatedHaarPolygon rotatedHaarPolygon = new RotatedHaarPolygon();
+            TiltedHaarPolygon tiltedHaarPolygon = new TiltedHaarPolygon();
 
-            (new DragResizeMod(rotatedHaarPolygon, imgWidth, imgHeight)).setNodeRotated(true).makeDraggableAndResizable();
+            (new DragResizeMod(tiltedHaarPolygon, imgWidth, imgHeight)).setNodeRotated(true).makeDraggableAndResizable();
 
-            imageViewPane.getChildren().add(rotatedHaarPolygon);
-            haarListView.getItems().add(rotatedHaarPolygon);
+            imageViewPane.getChildren().add(tiltedHaarPolygon);
+            haarListView.getItems().add(tiltedHaarPolygon);
         }
 
         haarListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -290,23 +293,80 @@ public class MainWindowController {
 
     }
 
-    private Image transformImage(Image inputImage) {
+    private Image transformImage(Image inputImage) throws Exception {
 
         int imgWidth = (int) inputImage.getWidth();
         int imgHeight = (int) inputImage.getHeight();
 
-        ImagePlus imagePlus = new ImagePlus("GrayScale", SwingFXUtils.fromFXImage(inputImage, null));
-        ImageConverter ic = new ImageConverter(imagePlus);
+        Image grayScaleImage = convertToGrayScale(inputImage);
+        byte[] grayScaleByteArray = GrayScaleConverter.getGrayScaleByteArray();
 
-        ic.convertToGray8();
-        byte[] pixelData = ((DataBufferByte) imagePlus.getBufferedImage().getRaster().getDataBuffer()).getData();
+//        openCVIntegralImageCreator = new OpenCVIntegralImageCreator(grayScaleByteArray, imgWidth, imgHeight);
+        openCVIntegralImageCreator = new IntegralImageCreator(grayScaleByteArray, imgWidth, imgHeight);
 
-
-        integralImage = new IntegralImage(pixelData, imgWidth, imgHeight);
-
-
-        return SwingFXUtils.toFXImage(imagePlus.getBufferedImage(), null);
+        return grayScaleImage;
     }
+
+//    private Image convertToGrayScale(Image inputImage) {
+//        WritableImage outputImage = new WritableImage((int) inputImage.getWidth(), (int) inputImage.getHeight());
+//
+//        final int channels = 4;
+//
+//        WritablePixelFormat<ByteBuffer> byteBufferWritablePixelFormat = WritablePixelFormat.getByteBgraInstance();
+//
+//        ByteBuffer readBuffer = ByteBuffer.allocate(channels * (int) inputImage.getWidth());
+//        ByteBuffer writeBuffer = ByteBuffer.allocate(channels * (int) inputImage.getWidth());
+//
+//        int[] colors = new int[256];
+//        for (int i = 0; i < 256; i++) {
+////            colors[i] = (255 << 24) | (i << 16) | (i << 8) | i;
+//            colors[i] = i;
+//            System.out.println(colors[i]);
+//        }
+//
+//        // create a byte-indexed PixelFormat with the color table
+//        PixelFormat pixelFormat = PixelFormat.createByteIndexedInstance(colors);
+//
+//        for (int rowIndex = 0; rowIndex < (int) inputImage.getHeight() - 1; rowIndex++) {
+//            inputImage.getPixelReader().getPixels(0, rowIndex, (int) inputImage.getWidth(), 1,
+//                    byteBufferWritablePixelFormat, readBuffer, (int) inputImage.getWidth());
+//
+//            for (int pixelIndex = 0; pixelIndex < (int) inputImage.getWidth() - 1; pixelIndex++) {
+//                int i = pixelIndex * 4;
+//
+//                byte[] array = readBuffer.array();
+//
+//                byte blue = (byte) (array[i] & 0xff);
+//                byte green = (byte) (array[i + 1] & 0xff);
+//                byte red = (byte) (array[i + 2] & 0xff);
+//
+//                double doubleGray = (0.299 * Byte.toUnsignedInt(red) + 0.587 * Byte.toUnsignedInt(green) + 0.114 *
+//                        Byte.toUnsignedInt(blue));
+//
+////                System.out.println(gray);
+//
+////                writeBuffer.put(gray);
+//
+//
+//                outputImage.getPixelWriter()
+//                        .setColor(
+//                                pixelIndex,
+//                                rowIndex,
+//                                new Color(doubleGray / 256, doubleGray / 256, doubleGray / 256, 1)
+//                        );
+//
+//            }
+//
+////            outputImage.getPixelWriter().setPixels(0, rowIndex, (int) inputImage.getWidth(), 1, pixelFormat,
+////                    writeBuffer, 0);
+//
+//            readBuffer.clear();
+//            writeBuffer.clear();
+//        }
+//
+//
+//        return outputImage;
+//    }
 
     public void setCurrentHaarRectangleLabels(IHaar haarFeature) {
 
@@ -323,7 +383,7 @@ public class MainWindowController {
 
 
         int area = haarFeature.getArea();
-        long sumOfArea = integralImage.getSumOfArea(haarFeature);
+        long sumOfArea = openCVIntegralImageCreator.getSumOfArea(haarFeature);
 
         rectangleArealabel.setText(nf.format(area));
         sumOfPixelsLabel.setText(nf.format(sumOfArea));
@@ -340,9 +400,10 @@ public class MainWindowController {
 
     private <T extends Event> void setInitialPointLabel(T t) {
 
+
         MyPoint centerOfInitialPoint = new MyPoint(
-                initialPoint.getLayoutX() + initialPoint.getWidth() / 2,
-                initialPoint.getLayoutY() + initialPoint.getHeight() / 2
+                initialPoint.getLayoutX() + (initialPoint.getWidth() / 2),
+                initialPoint.getLayoutY() + (initialPoint.getHeight() / 2)
         );
 
         initialPointLabel.setText((centerOfInitialPoint.toString()));
@@ -355,12 +416,8 @@ public class MainWindowController {
         ColorPicker colorPicker;
         Label isRotatedLabel;
 
-//        IHaar lastItem;
-
         HaarListViewCell() {
             super();
-
-
         }
 
         @Override

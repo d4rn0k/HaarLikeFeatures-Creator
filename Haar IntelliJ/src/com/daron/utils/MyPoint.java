@@ -6,8 +6,8 @@ public class MyPoint {
     int y;
 
     public MyPoint(double x, double y) {
-        this.x = (int) x;
-        this.y = (int) y;
+        this.x = (int) Math.round(x);
+        this.y = (int) Math.round(y);
     }
 
     public MyPoint() {

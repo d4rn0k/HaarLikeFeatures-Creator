@@ -2,201 +2,211 @@ package com.daron;
 
 import com.daron.haar.features.HaarFeature;
 import com.daron.haar.features.IHaar;
-import com.daron.haar.features.RotatedHaarPolygon;
+import com.daron.haar.features.TiltedHaarPolygon;
+import com.daron.utils.MyBounds;
 import javafx.event.Event;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import org.jetbrains.annotations.Contract;
 
 class DragResizeMod {
 
+    private final static double minElementSizeWidth = 15;
+    private final static double minElementSizeHeight = 15;
+    private static MainWindowController mainWindowController;
     private final int ResizeEventAreaMargin = 5;
-    private final double minElementSizeW = 15;
-    private final double minElementSizeH = 15;
-    private double clickX, clickY, nodeX, nodeY, nodeH, nodeW;
+    private double initClickX, initClickY, nodeX, nodeY, nodeH, nodeW;
     private double maxDragOrResizeParentW;
     private double maxDragOrResizeParentH;
     private double marginForDragW = 0;
     private double marginForDragH = 0;
     private boolean isNodeRotated = false;
-    private final IonDragResizeEventListener defaultListener = new IonDragResizeEventListener() {
-        @Override
-        public void onDrag(Event event, Node node, double newX, double newY, double newWidth, double newHeight) {
-//            Bounds boundsInParent = node.getParent().getBoundsInParent();
-//            double width =  boundsInParent.getMaxX() - boundsInParent.getMinX();
-//            double height = boundsInParent.getMaxY() - boundsInParent.getMinY();
-
-
-            if (isNodeRotated) {
-                RotatedHaarPolygon hp = (RotatedHaarPolygon) node;
-
-                if (newX < hp.getIntegerHeight()) {
-                    newX = hp.getIntegerHeight();
-                }
-
-                if (newX + hp.getIntegerWidth() > maxDragOrResizeParentW) {
-                    newX = maxDragOrResizeParentW - hp.getIntegerWidth();
-                }
-
-                if (newY < 0) {
-                    newY = 0;
-                }
-
-                if (newY + hp.getIntegerWidth() + hp.getIntegerHeight() > maxDragOrResizeParentH) {
-                    newY = maxDragOrResizeParentH - hp.getIntegerHeight() - hp.getIntegerWidth();
-                }
-
-                newHeight = -1; // Not change
-                newWidth = -1; //Not change
-
-
-            } else {
-                if (newX > maxDragOrResizeParentW + marginForDragW - newWidth) {
-                    newX = maxDragOrResizeParentW + marginForDragW - newWidth;
-                }
-                if (newY > maxDragOrResizeParentH + marginForDragH - newHeight) {
-                    newY = maxDragOrResizeParentH + marginForDragH - newHeight;
-                }
-                if (newX < -marginForDragW) {
-                    newX = -marginForDragW;
-                }
-                if (newY < -marginForDragH) {
-                    newY = -marginForDragH;
-                }
-            }
-
-            if (node instanceof IHaar) {
-                ((IHaar) node).setNewSizeAndPosition((int) newX, (int) newY, (int) newWidth, (int) newHeight);
-            } else {
-                setNodeSize(event, node, newX, newY, newWidth, newHeight);
-            }
-
-
-        }
-
-        @Override
-        public void onResize(Event event, Node node, double newX, double newY, double newWidth, double newHeight) {
-
-
-            if (isNodeRotated) {
-                RotatedHaarPolygon hp = (RotatedHaarPolygon) node;
-
-                if (newWidth > maxDragOrResizeParentW - (hp.getIntegerX() + hp.getIntegerWidth())) {
-                    newWidth = maxDragOrResizeParentW - newHeight;
-                }
-
-
-                if (newX < hp.getIntegerHeight()) {
-                    newX = hp.getIntegerHeight();
-                }
-
-                if (newX + hp.getIntegerWidth() > maxDragOrResizeParentW) {
-                    newX = maxDragOrResizeParentW - hp.getIntegerWidth();
-                }
-
-                if (newY + hp.getIntegerWidth() + hp.getIntegerHeight() > maxDragOrResizeParentH) {
-                    newY = maxDragOrResizeParentH - hp.getIntegerHeight() - hp.getIntegerWidth();
-                }
-
-                if (newY < 0) {
-                    newY = 0;
-                }
-
-                System.out.format("newX=(%5.0f) newY=(%5.0f) newWidth=(%5.0f) newHeight=(%5.0f) \n",
-                        newX, newY, newWidth, newHeight);
-
-            } else {
-                if (newWidth > maxDragOrResizeParentW - newX) {
-                    newWidth = maxDragOrResizeParentW - newX;
-                }
-                if (newHeight > maxDragOrResizeParentH - newY) {
-                    newHeight = maxDragOrResizeParentH - newY;
-                }
-                if (newX < 0) {
-                    newX = 0;
-                }
-                if (newY < 0) {
-                    newY = 0;
-                }
-
-                if (newWidth > maxDragOrResizeParentW) {
-                    newWidth = maxDragOrResizeParentH;
-                    newX = 0;
-                }
-
-                if (newHeight > maxDragOrResizeParentH) {
-                    newHeight = maxDragOrResizeParentH;
-                    newY = 0;
-                }
-            }
-
-
-            if (node instanceof IHaar) {
-                ((IHaar) node).setNewSizeAndPosition((int) newX, (int) newY, (int) newWidth, (int) newHeight);
-            } else {
-                setNodeSize(event, node, newX, newY, newWidth, newHeight);
-            }
-
-        }
-
-        private void setNodeSize(Event event, Node node, double x, double y, double w, double h) {
-
-//            if (runWithShiftOrNot(event)) {
-//                return;
-//            }
-
-            node.setLayoutX(x);
-            node.setLayoutY(y);
-            // TODO find generic way to set width and height of any node
-            // here we cant set height and width to node directly.
-            // or i just cant find how to do it,
-            // so you have to wright resize code anyway for your Nodes...
-            //something like this
-            if (node instanceof Canvas) {
-                ((Canvas) node).setWidth(w);
-                ((Canvas) node).setHeight(h);
-            } else if (node instanceof HaarFeature) {
-                HaarFeature rect = (HaarFeature) node;
-
-                rect.setWidth(w);
-                rect.maxWidth(w);
-                rect.minWidth(w);
-
-                rect.setHeight(h);
-                rect.minHeight(h);
-                rect.maxHeight(h);
-
-            } else if (node instanceof Pane) {
-
-                Pane pane = (Pane) node;
-
-                pane.maxWidth(w);
-                pane.minWidth(w);
-                pane.setPrefWidth(w);
-
-                pane.setMaxHeight(h);
-                pane.setMinHeight(h);
-                pane.setPrefHeight(h);
-            }
-        }
-    };
     private MOUSESTATES state = MOUSESTATES.DEFAULT;
     private Node node;
     private boolean onlyDraggable = false;
     private IonDragResizeEventListener listener;
 
-    public DragResizeMod(Node node, double maxDragOrResizeParentWidth, double maxDragOrResizeParentHeight) {
-        this.maxDragOrResizeParentW = maxDragOrResizeParentWidth;
-        this.maxDragOrResizeParentH = maxDragOrResizeParentHeight;
+    public DragResizeMod(Node node, double maxDragOrResizeParentW, double maxDragOrResizeParentH) {
+        this.maxDragOrResizeParentW = maxDragOrResizeParentW;
+        this.maxDragOrResizeParentH = maxDragOrResizeParentH;
 
         this.node = node;
-        listener = defaultListener;
+        listener = new IonDragResizeEventListener() {
+            @Override
+            public void onDrag(Event event, Node node1, double newX, double newY, double newWidth, double newHeight) {
+                //            Bounds boundsInParent = node.getParent().getBoundsInParent();
+                //            double width =  boundsInParent.getMaxX() - boundsInParent.getMinX();
+                //            double height = boundsInParent.getMaxY() - boundsInParent.getMinY();
+
+                if (isNodeRotated) {
+                    TiltedHaarPolygon hp = (TiltedHaarPolygon) node1;
+
+                    if (newX < hp.getIntegerHeight()) {
+                        newX = hp.getIntegerHeight();
+                    }
+
+                    if (newX + hp.getIntegerWidth() > DragResizeMod.this.maxDragOrResizeParentW) {
+                        newX = DragResizeMod.this.maxDragOrResizeParentW - hp.getIntegerWidth();
+                    }
+
+                    if (newY < 0) {
+                        newY = 0;
+                    }
+
+                    if (newY + hp.getIntegerWidth() + hp.getIntegerHeight() > DragResizeMod.this.maxDragOrResizeParentH) {
+                        newY = DragResizeMod.this.maxDragOrResizeParentH - hp.getIntegerHeight() - hp.getIntegerWidth();
+                    }
+
+                    newHeight = -1; // Not change
+                    newWidth = -1;  // Not change
+
+
+                } else {
+                    if (newX > DragResizeMod.this.maxDragOrResizeParentW + marginForDragW - newWidth) {
+                        newX = DragResizeMod.this.maxDragOrResizeParentW + marginForDragW - newWidth;
+                    }
+                    if (newY > DragResizeMod.this.maxDragOrResizeParentH + marginForDragH - newHeight) {
+                        newY = DragResizeMod.this.maxDragOrResizeParentH + marginForDragH - newHeight;
+                    }
+                    if (newX < -marginForDragW) {
+                        newX = -marginForDragW;
+                    }
+                    if (newY < -marginForDragH) {
+                        newY = -marginForDragH;
+                    }
+                }
+
+
+                if (node1 instanceof IHaar) {
+
+                    ((IHaar) node1).setNewSizeAndPosition(
+                            (int) Math.round(newX),
+                            (int) Math.round(newY),
+                            (int) Math.round(newWidth),
+                            (int) Math.round(newHeight)
+                    );
+                } else {
+                    //Drag initital point
+                    setNodeSize(event, node1, newX, newY, newWidth, newHeight);
+                }
+
+
+            }
+
+            @Override
+            public void onResize(Event event, Node node1, double newX, double newY, double newWidth, double newHeight) {
+
+
+                if (isNodeRotated) {
+                    TiltedHaarPolygon hp = (TiltedHaarPolygon) node1;
+
+                    MyBounds bp = hp.getBoundsPoints();
+
+                    if (newX + newWidth > maxDragOrResizeParentW) {
+                        newWidth = maxDragOrResizeParentW - newX;
+                    }
+
+                    if (newY + newHeight + newWidth > maxDragOrResizeParentH) {
+                        newWidth = maxDragOrResizeParentH - newY - newHeight;
+                    }
+
+
+                    if (newX < hp.getIntegerHeight()) {
+                        newX = hp.getIntegerHeight();
+                    }
+
+                    if (newY < 0) {
+                        newY = 0;
+                    }
+
+                    if (newWidth < minElementSizeWidth) {
+                        newWidth = minElementSizeWidth;
+                    }
+
+                    if (newHeight < minElementSizeHeight) {
+                        newHeight = minElementSizeHeight;
+                    }
+
+
+                    System.out.format("newX=(%5.0f) newY=(%5.0f) newWidth=(%5.0f) newHeight=(%5.0f) \n",
+                            newX, newY, newWidth, newHeight);
+
+                } else {
+                    if (newWidth > maxDragOrResizeParentW - newX) {
+                        newWidth = maxDragOrResizeParentW - newX;
+                    }
+                    if (newHeight > maxDragOrResizeParentH - newY) {
+                        newHeight = maxDragOrResizeParentH - newY;
+                    }
+                    if (newX < 0) {
+                        newX = 0;
+                    }
+                    if (newY < 0) {
+                        newY = 0;
+                    }
+
+                    if (newWidth > maxDragOrResizeParentW) {
+                        newWidth = maxDragOrResizeParentH;
+                        newX = 0;
+                    }
+
+                    if (newHeight > maxDragOrResizeParentH) {
+                        newHeight = maxDragOrResizeParentH;
+                        newY = 0;
+                    }
+                }
+
+
+                ((IHaar) node1).setNewSizeAndPosition(
+                        (int) Math.round(newX),
+                        (int) Math.round(newY),
+                        (int) Math.round(newWidth),
+                        (int) Math.round(newHeight)
+                );
+
+            }
+
+            private void setNodeSize(Event event, Node node1, double x, double y, double w, double h) {
+
+                node1.setLayoutX(x);
+                node1.setLayoutY(y);
+
+                if (node1 instanceof Canvas) {
+                    ((Canvas) node1).setWidth(w);
+                    ((Canvas) node1).setHeight(h);
+                } else if (node1 instanceof HaarFeature) {
+                    HaarFeature rect = (HaarFeature) node1;
+
+                    rect.setWidth(w);
+                    rect.maxWidth(w);
+                    rect.minWidth(w);
+
+                    rect.setHeight(h);
+                    rect.minHeight(h);
+                    rect.maxHeight(h);
+
+                } else if (node1 instanceof Pane) {
+
+                    Pane pane = (Pane) node1;
+
+                    pane.maxWidth(w);
+                    pane.minWidth(w);
+                    pane.setPrefWidth(w);
+
+                    pane.setMaxHeight(h);
+                    pane.setMinHeight(h);
+                    pane.setPrefHeight(h);
+                }
+            }
+        };
     }
 
-    @Contract(pure = true)
+    public static void setMainWindowController(MainWindowController mainWindowController) {
+        DragResizeMod.mainWindowController = mainWindowController;
+    }
+
     private static Cursor getCursorForState(MOUSESTATES state) {
         switch (state) {
             case NW_RESIZE:
@@ -220,6 +230,11 @@ class DragResizeMod {
             default:
                 return Cursor.DEFAULT;
         }
+    }
+
+    private void setNewDragOrResizeMeasures(double maxDragOrResizeParentWidth, double maxDragOrResizeParentHeight) {
+        this.maxDragOrResizeParentW = maxDragOrResizeParentWidth;
+        this.maxDragOrResizeParentH = maxDragOrResizeParentHeight;
     }
 
     public DragResizeMod makeOnlyDraggable() {
@@ -247,6 +262,16 @@ class DragResizeMod {
         node.setOnMouseMoved(this::mouseOver);
         node.setOnMouseReleased(this::mouseReleased);
 
+        node.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2 && (isNodeRotated)) {
+
+                TiltedHaarPolygon rotatedRectangle = (TiltedHaarPolygon) event.getSource();
+
+                rotatedRectangle.rotate45();
+
+            }
+        });
+
         return this;
     }
 
@@ -261,59 +286,120 @@ class DragResizeMod {
         node.setCursor(cursor);
     }
 
+    private void setNewInitialEventCoordinates(MouseEvent event) {
+        nodeX = nodeX();
+        nodeY = nodeY();
+        nodeH = nodeH();
+        nodeW = nodeW();
+
+        initClickX = event.getX();
+        initClickY = event.getY();
+    }
+
+    private void mousePressed(MouseEvent event) {
+
+        if (event.getSource() instanceof IHaar) {
+            mainWindowController.setListViewSelection((IHaar) event.getSource());
+        }
+
+        setNewInitialEventCoordinates(event);
+        if (isInResizeZone(event)) {
+            state = currentMouseState(event);
+        } else {
+            state = MOUSESTATES.DRAG;
+        }
+    }
+
     private void mouseDragged(MouseEvent event) {
 
         if (listener != null) {
             double mouseX = parentX(event.getX());
             double mouseY = parentY(event.getY());
 
+
             if (onlyDraggable || state == MOUSESTATES.DRAG) {
 
+
                 if (isNodeRotated) {
-                    listener.onDrag(event, node, mouseX, mouseY, nodeW, nodeH);
+                    IHaar rotatedRectangle = (IHaar) event.getSource();
+
+                    int oldX = rotatedRectangle.getIntegerX();
+                    int oldY = rotatedRectangle.getIntegerY();
+                    int deltaX = (int) (event.getX() - initClickX);
+                    int deltaY = (int) (event.getY() - initClickY);
+
+                    listener.onDrag(event, node, oldX + deltaX, oldY + deltaY, nodeW, nodeH);
+                    setNewInitialEventCoordinates(event);
                 } else {
-                    listener.onDrag(event, node, mouseX - clickX, mouseY - clickY, nodeW, nodeH);
+                    listener.onDrag(event, node, mouseX - initClickX, mouseY - initClickY, nodeW, nodeH);
                 }
 
             } else if (state != MOUSESTATES.DEFAULT) {
                 //resizing
                 double newX = nodeX;
                 double newY = nodeY;
-                double newH = nodeH;
-                double newW = nodeW;
 
+                double newW = nodeW;
+                double newH = nodeH;
 
                 if (isNodeRotated) {
-                    mouseX = parentX(event.getX());
-                    mouseY = parentY(event.getY());
+                    IHaar rotatedRectangle = (IHaar) event.getSource();
+
+                    int oldX = rotatedRectangle.getIntegerX();
+                    int oldY = rotatedRectangle.getIntegerY();
+                    int oldWidth = rotatedRectangle.getIntegerWidth();
+                    int oldHeight = rotatedRectangle.getIntegerHeight();
+
+
+                    int deltaX = (int) (event.getX() - initClickX);
+                    int deltaY = (int) (event.getY() - initClickY);
 
                     if (state == MOUSESTATES.NW_RESIZE) {
-                        newW = Math.abs(mouseX - nodeX);
-                        newX = mouseX;
-                        newY = mouseY;
+
+                        newW = oldWidth - deltaX;
+                        newX = oldX + deltaX;
+                        newY = oldY + deltaX;
+
                     } else if (state == MOUSESTATES.SE_RESIZE) {
-                        newW = Math.abs(mouseX - nodeX);
-                        newX = -1;
-                        newY = -1;
+                        newW = oldWidth + deltaX;
+
                     } else if (state == MOUSESTATES.NE_RESIZE) {
-                        newH = Math.abs(mouseY - nodeY);
-                        newX = mouseX;
-                        newY = mouseY;
+                        newH = oldHeight - deltaY;
+                        newX = oldX - deltaY;
+                        newY = oldY + deltaY;
                     } else if (state == MOUSESTATES.SW_RESIZE) {
-                        newH = Math.abs(mouseY - nodeY);
-                        newX = -1;
-                        newY = -1;
+                        newH = oldHeight + deltaY;
+
                     }
+
+                    if (newW < minElementSizeWidth) {
+                        if (state == MOUSESTATES.W_RESIZE || state == MOUSESTATES.NW_RESIZE || state == MOUSESTATES.SW_RESIZE) {
+                            newX = newX - minElementSizeWidth + newW;
+                        }
+                        newW = minElementSizeWidth;
+                    }
+
+                    if (newH < minElementSizeHeight) {
+                        if (state == MOUSESTATES.N_RESIZE || state == MOUSESTATES.NW_RESIZE || state == MOUSESTATES.NE_RESIZE) {
+                            newY = newY + newH - minElementSizeHeight;
+                        }
+                        newH = minElementSizeHeight;
+                    }
+
+//                    System.out.println("MouseX= (" + mouseX + ") NodeX= (" + nodeX + ") MouseY= (" + mouseY +
+//                            ") MouseY= " + mouseY + ")");
+
+                    setNewInitialEventCoordinates(event);
 
                     listener.onResize(event, node, newX, newY, newW, newH);
                     return;
                 }
 
-
                 // Right Resize
                 if (state == MOUSESTATES.E_RESIZE || state == MOUSESTATES.NE_RESIZE || state == MOUSESTATES.SE_RESIZE) {
                     newW = mouseX - nodeX;
                 }
+
                 // Left Resize
                 if (state == MOUSESTATES.W_RESIZE || state == MOUSESTATES.NW_RESIZE || state == MOUSESTATES.SW_RESIZE) {
                     newX = mouseX;
@@ -324,6 +410,7 @@ class DragResizeMod {
                 if (state == MOUSESTATES.S_RESIZE || state == MOUSESTATES.SE_RESIZE || state == MOUSESTATES.SW_RESIZE) {
                     newH = mouseY - nodeY;
                 }
+
                 // Top Resize
                 if (state == MOUSESTATES.N_RESIZE || state == MOUSESTATES.NW_RESIZE || state == MOUSESTATES.NE_RESIZE) {
                     newY = mouseY;
@@ -331,52 +418,23 @@ class DragResizeMod {
                 }
 
                 //min valid rect Size Check
-                if (newW < minElementSizeW) {
+                if (newW < minElementSizeWidth) {
                     if (state == MOUSESTATES.W_RESIZE || state == MOUSESTATES.NW_RESIZE || state == MOUSESTATES.SW_RESIZE) {
-                        newX = newX - minElementSizeW + newW;
+                        newX = newX - minElementSizeWidth + newW;
                     }
-                    newW = minElementSizeW;
+                    newW = minElementSizeWidth;
                 }
 
-                if (newH < minElementSizeH) {
+                if (newH < minElementSizeHeight) {
                     if (state == MOUSESTATES.N_RESIZE || state == MOUSESTATES.NW_RESIZE || state == MOUSESTATES.NE_RESIZE) {
-                        newY = newY + newH - minElementSizeH;
+                        newY = newY + newH - minElementSizeHeight;
                     }
-                    newH = minElementSizeH;
+                    newH = minElementSizeHeight;
                 }
 
                 listener.onResize(event, node, newX, newY, newW, newH);
             }
         }
-    }
-
-    private void mousePressed(MouseEvent event) {
-
-//        if (isInResizeZone(event)) {
-//            setNewInitialEventCoordinates(event);
-//            state = currentMouseState(event);
-//        } else if (isInDragZone(event)) {
-//            setNewInitialEventCoordinates(event);
-//            state = MOUSESTATES.DRAG;
-//        } else {
-//            state = MOUSESTATES.DEFAULT;
-//        }
-        if (isInResizeZone(event)) {
-            setNewInitialEventCoordinates(event);
-            state = currentMouseState(event);
-        } else {
-            setNewInitialEventCoordinates(event);
-            state = MOUSESTATES.DRAG;
-        }
-    }
-
-    private void setNewInitialEventCoordinates(MouseEvent event) {
-        nodeX = nodeX();
-        nodeY = nodeY();
-        nodeH = nodeH();
-        nodeW = nodeW();
-        clickX = event.getX();
-        clickY = event.getY();
     }
 
     private MOUSESTATES currentMouseState(MouseEvent event) {
@@ -387,10 +445,10 @@ class DragResizeMod {
         boolean bottom = isBottomResizeZone(event);
 
         if (isNodeRotated) {
-            if (right) {
-                state = MOUSESTATES.SE_RESIZE;
-            } else if (left) {
+            if (left) {
                 state = MOUSESTATES.NW_RESIZE;
+            } else if (right) {
+                state = MOUSESTATES.SE_RESIZE;
             } else if (top) {
                 state = MOUSESTATES.NE_RESIZE;
             } else if (bottom) {
@@ -447,13 +505,10 @@ class DragResizeMod {
 
     private boolean isLeftResizeZone(MouseEvent event) {
 
-
         if (isNodeRotated) {
-            RotatedHaarPolygon target = ((RotatedHaarPolygon) event.getTarget());
+            TiltedHaarPolygon target = ((TiltedHaarPolygon) event.getTarget());
 
-            double minY = target.getBoundsInParent().getMinY();
-
-            double diff = event.getY() - minY;
+            double diff = event.getY() - target.getBoundsInParent().getMinY();
 
             double targetX = target.getIntegerX();
 
@@ -466,13 +521,14 @@ class DragResizeMod {
     private boolean isRightResizeZone(MouseEvent event) {
 
         if (isNodeRotated) {
-            RotatedHaarPolygon target = ((RotatedHaarPolygon) event.getTarget());
+            TiltedHaarPolygon target = ((TiltedHaarPolygon) event.getTarget());
 
-            double diff = event.getY() - (target.getIntegerX() + target.getIntegerWidth());
+            double targetX = target.getBoundsPoints().c.getX();
 
-            double targetX = target.getIntegerX() + target.getIntegerWidth();
+            double diffY = target.getBoundsPoints().c.getY() - event.getY();
 
-            return intersect(targetX - diff, event.getX());
+
+            return intersect(targetX + diffY, event.getX());
 
         } else {
             return intersect(nodeW(), event.getX());
@@ -483,15 +539,15 @@ class DragResizeMod {
     private boolean isTopResizeZone(MouseEvent event) {
         if (isNodeRotated) {
 
-            RotatedHaarPolygon target = ((RotatedHaarPolygon) event.getTarget());
+            TiltedHaarPolygon target = ((TiltedHaarPolygon) event.getTarget());
 
-            double minY = target.getBoundsInParent().getMinY();
+            double minY = target.getBoundsPoints().a.getY();
 
-            double diff = event.getX() - minY;
+            double diffY = event.getY() - minY;
 
             double targetX = target.getIntegerX();
 
-            return intersect(targetX + diff, event.getY());
+            return intersect(targetX + diffY, event.getX());
         } else {
             return intersect(0, event.getY());
         }
@@ -500,7 +556,7 @@ class DragResizeMod {
     private boolean isBottomResizeZone(MouseEvent event) {
         if (isNodeRotated) {
 
-            RotatedHaarPolygon target = ((RotatedHaarPolygon) event.getTarget());
+            TiltedHaarPolygon target = ((TiltedHaarPolygon) event.getTarget());
 
             double minX = target.getBoundsInParent().getMinX();
 
@@ -537,7 +593,7 @@ class DragResizeMod {
     private double nodeX() {
 
         if (isNodeRotated) {
-            RotatedHaarPolygon haarPolygon = (RotatedHaarPolygon) this.node;
+            TiltedHaarPolygon haarPolygon = (TiltedHaarPolygon) this.node;
 
             return haarPolygon.getBoundsPoints().a.getX();
         }
@@ -551,7 +607,7 @@ class DragResizeMod {
 
     private double nodeW() {
         if (isNodeRotated) {
-            return ((RotatedHaarPolygon) node).getIntegerWidth();
+            return ((TiltedHaarPolygon) node).getIntegerWidth();
         }
 
         return node.getBoundsInParent().getWidth();
@@ -559,7 +615,7 @@ class DragResizeMod {
 
     private double nodeH() {
         if (isNodeRotated) {
-            return ((RotatedHaarPolygon) node).getIntegerHeight();
+            return ((TiltedHaarPolygon) node).getIntegerHeight();
         }
 
         return node.getBoundsInParent().getHeight();

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<HaarFeature>
+    <initialPointX>15</initialPointX>
+    <getInitialPointY>15</getInitialPointY>
+    <rect isRotated="false">
+        <x>85</x>
+        <y>85</y>
+        <width>100</width>
+        <height>50</height>
+    </rect>
+</HaarFeature>

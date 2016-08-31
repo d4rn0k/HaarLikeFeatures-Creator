@@ -6,39 +6,36 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
-
-public class IntegralImage {
+public class OpenCVIntegralImageCreator {
 
     private final Mat sumTable;
     private final Mat sumSquaredTable;
     private final Mat sumRotatedTable;
-
+    public int[][] tiltedMatrixTest;
+    private byte[] inputPixelsArray;
     private int imgWidth;
     private int imgHeight;
 
-    public IntegralImage(byte[] inputPixelsArray, int width, int height) {
+    public OpenCVIntegralImageCreator(byte[] inputPixelsArray, int width, int height) {
         this.imgWidth = width;
         this.imgHeight = height;
+        this.inputPixelsArray = inputPixelsArray;
 
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-
-        Mat inputImgMat = new Mat(imgHeight, imgWidth, CvType.CV_8U);
-        inputImgMat.put(0, 0, inputPixelsArray);
-
 
         sumTable = new Mat(imgHeight + 1, imgWidth + 1, CvType.CV_32F);
         sumSquaredTable = new Mat(imgHeight + 1, imgWidth + 1, CvType.CV_64F);
         sumRotatedTable = new Mat(imgHeight + 1, imgWidth + 1, CvType.CV_32F);
+        calculate();
 
+        tiltedMatrixTest = helper(sumRotatedTable);
+    }
+
+    private void calculate() {
+        Mat inputImgMat = new Mat(imgHeight, imgWidth, CvType.CV_8U);
+        inputImgMat.put(0, 0, inputPixelsArray);
         Imgproc.integral3(inputImgMat, sumTable, sumSquaredTable, sumRotatedTable);
-
-        rotatedRectOpenCVTest();
     }
-
-
-    private void rotatedRectOpenCVTest() {
-    }
-
 
     public long getSumOfArea(IHaar haar) {
         if (haar.isRotated()) {
@@ -46,6 +43,17 @@ public class IntegralImage {
         } else {
             return getNormalSumOfArea(haar);
         }
+    }
+
+    private int[][] helper(Mat inputMatrix) {
+        int[][] output = new int[imgHeight + 1][imgWidth + 1];
+
+        for (int i = 0; i < imgHeight + 1; i++) {
+            for (int j = 0; j < imgWidth + 1; j++) {
+                output[i][j] = (int) (inputMatrix.get(i, j))[0];
+            }
+        }
+        return output;
     }
 
     private long getNormalSumOfArea(IHaar haar) {
@@ -66,6 +74,7 @@ public class IntegralImage {
         try {
 
             if (!isInBounds(NWX, NWY, SEX, SEY)) {
+                System.err.println("Over bounds! nwX=" + NWX + " nwY=" + NWY + " seX= " + SEX + " seY" + SEY);
                 return 0;
             }
 
@@ -85,7 +94,6 @@ public class IntegralImage {
     public long getSquareSumOfArea(IHaar haarFeature) {
         long sumArea = 0;
 
-
         try {
 
             int w = haarFeature.getIntegerWidth();
@@ -94,11 +102,10 @@ public class IntegralImage {
             int x = haarFeature.getIntegerX();
             int y = haarFeature.getIntegerY();
 
-            sumArea = getRSAT(x + w - h, y + w + h)
-                    + getRSAT(x, y)
-                    - getRSAT(x - h, y + h)
-                    - getRSAT(x + w, y + w);
-
+            sumArea = getSquaredValAt(x + w - h, y + w + h)
+                    + getSquaredValAt(x, y)
+                    - getSquaredValAt(x - h, y + h)
+                    - getSquaredValAt(x + w, y + w);
 
         } catch (Exception exc) {
             exc.printStackTrace();
@@ -107,22 +114,17 @@ public class IntegralImage {
         return sumArea;
     }
 
-
-    private long getRSAT(int x, int y) {
-        return getSquaredValAt(x, y);
-    }
-
     private long getSquaredValAt(int x, int y) {
         if (x <= -1 || y <= -1) {
             return 0;
         }
-//        System.out.println("x= " + x + " y= " + y);
         long answer = 0;
 
         try {
             answer = (long) (sumRotatedTable.get(y, x)[0]);
+            System.out.println("OpenCVCreator:" + answer);
         } catch (Exception exc) {
-//            System.err.println("Over bound! x=" + x + " y=" + y);
+            System.err.println("Over bounds! x=" + x + " y=" + y);
         }
 
         return answer;

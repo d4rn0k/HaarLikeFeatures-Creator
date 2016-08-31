@@ -1,6 +1,5 @@
 package com.daron.haar.features;
 
-
 import com.daron.utils.MyBounds;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
@@ -8,12 +7,11 @@ import javafx.scene.paint.Color;
 
 public interface IHaar {
 
-
     void setNewSizeAndPosition(int newX, int newY, int newWidth, int newHeight);
 
-    int getArea();
-
     MyBounds getBoundsPoints();
+
+    int getArea();
 
     int getIntegerX();
 
@@ -28,12 +26,4 @@ public interface IHaar {
     Property<Color> getColorProperty();
 
     StringProperty getNameProperty();
-
-//    {
-//        this.color.addListener((observable, oldValue, newValue) -> {
-//            this.setFill(newValue.deriveColor(1, 1, 1, 0.7));
-//        });
-//    }
-
-
 }

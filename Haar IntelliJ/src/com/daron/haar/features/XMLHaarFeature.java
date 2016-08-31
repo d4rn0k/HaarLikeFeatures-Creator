@@ -23,7 +23,6 @@ public class XMLHaarFeature {
     }
 
     public XMLHaarFeature() {
-
     }
 }
 
