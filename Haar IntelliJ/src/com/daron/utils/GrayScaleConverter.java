@@ -16,6 +16,7 @@ public class GrayScaleConverter {
     private static final double rw = 0.299;
     private static final double gw = 0.587;
     private static final double bw = 0.114;
+
     private static byte[] grayScaleByteArray;
 
     public static Image convertToGrayScale(Image inputImage) {
@@ -72,7 +73,7 @@ public class GrayScaleConverter {
 
     public static byte[] getGrayScaleByteArray() throws Exception {
         if (grayScaleByteArray == null) {
-            throw new Exception("Use convert to grayscale method First!!");
+            throw new Exception("Gray scale byte array is empty!\nUse convert to grayscale method First!!");
         }
 
         return grayScaleByteArray;

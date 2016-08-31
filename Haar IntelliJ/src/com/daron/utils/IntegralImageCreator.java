@@ -25,7 +25,7 @@ public class IntegralImageCreator {
         calculate();
     }
 
-    public void calculate() {
+    private void calculate() {
 
         for (int y = 1; y <= imgHeight; y++) {
 
@@ -53,20 +53,15 @@ public class IntegralImageCreator {
 
         for (int y = 1; y <= imgHeight; y++) {
 
-            long sum = 0;
-            long sum2 = 0;
-
             integralSumTilted[y][0] = integralSumTilted[y - 1][1];
 
             for (int x = 1; x <= imgWidth; x++) {
-
 
                 long rsatVal1 = getRsatVal(x - 1, y - 1);
                 long rsatVal2 = getRsatVal(x + 1, y - 1);
                 long rsatVal3 = getRsatVal(x, y - 2);
                 long valFromByteArray1 = getValFromByteArray(iXIndex % imgWidth, iYIndex);
                 long valFromByteArray2 = getValFromByteArray(iXIndex % imgHeight, iYIndex - 1);
-
 
                 long l = rsatVal1
                         + rsatVal2
@@ -85,22 +80,19 @@ public class IntegralImageCreator {
 
                     integralSumTilted[y][imgWidth] = ll;
                 }
-
                 iXIndex++;
             }
-
             iYIndex++;
         }
-        System.out.println("Calculated!");
     }
 
     private long getValFromByteArray(int x, int y) {
         if (x < 0 || y < 0) {
-            System.out.println("Błąd getValFromByteArray x lub y Mniejsze 0: x=" + x + " y=" + y);
+            System.err.println("Error: getValFromByteArray x or y less than 0: x=" + x + " y=" + y);
             return 0L;
         }
         if (x > imgWidth - 1 || y > imgHeight - 1) {
-            System.out.println("!!Błąd getValFromByteArray x lub y Większe 0: x=" + x + " y=" + y);
+            System.err.println("Error: getValFromByteArray x or y more than: x=" + x + " y=" + y);
             return 0L;
         }
         return Byte.toUnsignedLong(inputPixelsArray[(y) * imgWidth + x]);
@@ -113,12 +105,12 @@ public class IntegralImageCreator {
         }
 
         if (x > imgWidth) {
-            System.out.println("x > imgWidth : x= " + x);
+            System.err.println("x > imgWidth : x= " + x);
             return 0L;
         }
 
         if (x > imgHeight) {
-            System.out.println("y > imgHeight : y= " + y);
+            System.err.println("y > imgHeight : y= " + y);
             return 0L;
         }
 
@@ -199,7 +191,6 @@ public class IntegralImageCreator {
 
         try {
             answer = integralSumTilted[y][x];
-            System.out.println("MyCreator:" + answer);
         } catch (Exception exc) {
             System.err.println("Over bounds! x=" + x + " y=" + y);
         }

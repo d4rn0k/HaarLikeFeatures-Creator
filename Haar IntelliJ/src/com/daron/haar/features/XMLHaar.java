@@ -24,7 +24,7 @@ public class XMLHaar {
         this.isRotated = isRotated;
     }
 
-    public XMLHaar() {
-
-    }
+//    public XMLHaar() {
+//
+//    }
 }

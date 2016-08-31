@@ -27,7 +27,7 @@ public class Main extends Application {
 
         mainWindowController = loader.getController();
 
-        primaryStage.setTitle("Haar like features");
+        primaryStage.setTitle("Haar like features creator tool");
         primaryStage.setScene(new Scene(root, 1000, 700));
 
         mainWindowController.imageViewPane.setOnMouseMoved(event -> {
@@ -37,7 +37,6 @@ public class Main extends Application {
                             event.getY()
                     );
 
-
             mainWindowController.mouseMonitor.setText(msg);
         });
 
@@ -46,6 +45,4 @@ public class Main extends Application {
 
         primaryStage.show();
     }
-
-
 }

@@ -10,7 +10,7 @@ public class MyPoint {
         this.y = (int) Math.round(y);
     }
 
-    public MyPoint() {
+    MyPoint() {
         this.x = 0;
         this.y = 0;
     }

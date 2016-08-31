@@ -10,18 +10,15 @@ import javafx.scene.shape.Polygon;
 
 public class TiltedHaarPolygon extends Polygon implements IHaar {
 
-    int x = 100;
-    int y = 100;
+    private int x = 100;
+    private int y = 100;
+    private int width = 100;
+    private int height = 60;
 
-    int width = 100;
-    int height = 60;
-
-    //true => //; false  = \\
-    boolean rotateSide = false;
-    MyBounds myBounds;
     private Property<Color> color;
-
     private StringProperty name;
+
+    private MyBounds myBounds;
 
     public TiltedHaarPolygon() {
         myBounds = new MyBounds();
@@ -32,7 +29,6 @@ public class TiltedHaarPolygon extends Polygon implements IHaar {
         this.color.addListener((observable, oldValue, newValue) -> {
             this.setFill(newValue.deriveColor(1, 1, 1, 0.7));
         });
-
 
         setNewSizeAndPosition(x, y, width, height);
     }
@@ -77,8 +73,6 @@ public class TiltedHaarPolygon extends Polygon implements IHaar {
     @Override
     public void setNewSizeAndPosition(int newX, int newY, int newWidth, int newHeight) {
 
-        System.out.format("setNewSizeAndPosition: newX=(%5d) newY=(%5d) newWidth=(%5d) newHeight=(%d)\n",
-                newX, newY, newWidth, newHeight);
         if (newX != -1) {
             this.x = newX;
         }
@@ -95,10 +89,6 @@ public class TiltedHaarPolygon extends Polygon implements IHaar {
             this.height = newHeight;
         }
 
-//        a = new Point2D(newX, newY );
-//        b = new Point2D(newX + newWidth, newY + newWidth);
-//        c = new Point2D(newX + newWidth - newHeight, newY + newWidth + newHeight);
-//        d = new Point2D(newX - newHeight, newY + newHeight );
         setMyBounds();
         updateABCDPoints();
     }

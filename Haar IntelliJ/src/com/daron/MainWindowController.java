@@ -93,17 +93,19 @@ public class MainWindowController {
     @FXML
     public Label avgLabel;
 
-    IntegralImageCreator openCVIntegralImageCreator;
+    private IntegralImageCreator imageCreator;
 
-    double imgWidth;
-    double imgHeight;
+    private double imgWidth;
+    private double imgHeight;
+
     private Canvas initialPoint;
     private NumberFormat nf = NumberFormat.getNumberInstance(Locale.getDefault());
-
 
     @FXML
     private void initialize() {
         openImage(new File("obrazek.jpg"));
+
+        DragResizeMod.setMainWindowController(this);
 
         haarListView.setCellFactory(lv -> new HaarListViewCell());
 
@@ -114,6 +116,20 @@ public class MainWindowController {
             }
         });
 
+        setInitialPointGraphicsContext();
+
+        initialPoint.addEventFilter(MouseEvent.MOUSE_DRAGGED, this::setInitialPointLabel);
+
+        DragResizeMod initialPointResizer = new DragResizeMod(initialPoint, imgWidth, imgHeight);
+        initialPointResizer.setMarginsForDrag(initialPoint.getWidth() / 2, initialPoint.getHeight() / 2)
+                .makeOnlyDraggable();
+
+
+        imageViewPane.getChildren().add(initialPoint);
+        handleAddNewHaar(null);
+    }
+
+    private void setInitialPointGraphicsContext() {
         initialPoint = new Canvas(10, 10);
         initialPoint.setLayoutX(10);
         initialPoint.setLayoutY(10);
@@ -132,19 +148,7 @@ public class MainWindowController {
         gc.moveTo(5, 0);
         gc.lineTo(5, 10);
         gc.stroke();
-
-        initialPoint.addEventFilter(MouseEvent.MOUSE_DRAGGED, this::setInitialPointLabel);
-
-        DragResizeMod initialPointResizer = new DragResizeMod(initialPoint, imgWidth, imgHeight);
-        initialPointResizer.setMarginsForDrag(initialPoint.getWidth() / 2, initialPoint.getHeight() / 2)
-                .makeOnlyDraggable();
-
-        DragResizeMod.setMainWindowController(this);
-
-        imageViewPane.getChildren().add(initialPoint);
-        handleAddNewHaar(null);
     }
-
 
     @FXML
     private void handleOpen() {
@@ -155,7 +159,6 @@ public class MainWindowController {
         fileChooser.getExtensionFilters().addAll(extFilterJPG, extFilterPNG);
 
         File file = fileChooser.showOpenDialog(null);
-
 
         openImage(file);
     }
@@ -301,74 +304,13 @@ public class MainWindowController {
         Image grayScaleImage = convertToGrayScale(inputImage);
         byte[] grayScaleByteArray = GrayScaleConverter.getGrayScaleByteArray();
 
-//        openCVIntegralImageCreator = new OpenCVIntegralImageCreator(grayScaleByteArray, imgWidth, imgHeight);
-        openCVIntegralImageCreator = new IntegralImageCreator(grayScaleByteArray, imgWidth, imgHeight);
+//        imageCreator = new OpenCVIntegralImageCreator(grayScaleByteArray, imgWidth, imgHeight);
+        imageCreator = new IntegralImageCreator(grayScaleByteArray, imgWidth, imgHeight);
 
         return grayScaleImage;
     }
 
-//    private Image convertToGrayScale(Image inputImage) {
-//        WritableImage outputImage = new WritableImage((int) inputImage.getWidth(), (int) inputImage.getHeight());
-//
-//        final int channels = 4;
-//
-//        WritablePixelFormat<ByteBuffer> byteBufferWritablePixelFormat = WritablePixelFormat.getByteBgraInstance();
-//
-//        ByteBuffer readBuffer = ByteBuffer.allocate(channels * (int) inputImage.getWidth());
-//        ByteBuffer writeBuffer = ByteBuffer.allocate(channels * (int) inputImage.getWidth());
-//
-//        int[] colors = new int[256];
-//        for (int i = 0; i < 256; i++) {
-////            colors[i] = (255 << 24) | (i << 16) | (i << 8) | i;
-//            colors[i] = i;
-//            System.out.println(colors[i]);
-//        }
-//
-//        // create a byte-indexed PixelFormat with the color table
-//        PixelFormat pixelFormat = PixelFormat.createByteIndexedInstance(colors);
-//
-//        for (int rowIndex = 0; rowIndex < (int) inputImage.getHeight() - 1; rowIndex++) {
-//            inputImage.getPixelReader().getPixels(0, rowIndex, (int) inputImage.getWidth(), 1,
-//                    byteBufferWritablePixelFormat, readBuffer, (int) inputImage.getWidth());
-//
-//            for (int pixelIndex = 0; pixelIndex < (int) inputImage.getWidth() - 1; pixelIndex++) {
-//                int i = pixelIndex * 4;
-//
-//                byte[] array = readBuffer.array();
-//
-//                byte blue = (byte) (array[i] & 0xff);
-//                byte green = (byte) (array[i + 1] & 0xff);
-//                byte red = (byte) (array[i + 2] & 0xff);
-//
-//                double doubleGray = (0.299 * Byte.toUnsignedInt(red) + 0.587 * Byte.toUnsignedInt(green) + 0.114 *
-//                        Byte.toUnsignedInt(blue));
-//
-////                System.out.println(gray);
-//
-////                writeBuffer.put(gray);
-//
-//
-//                outputImage.getPixelWriter()
-//                        .setColor(
-//                                pixelIndex,
-//                                rowIndex,
-//                                new Color(doubleGray / 256, doubleGray / 256, doubleGray / 256, 1)
-//                        );
-//
-//            }
-//
-////            outputImage.getPixelWriter().setPixels(0, rowIndex, (int) inputImage.getWidth(), 1, pixelFormat,
-////                    writeBuffer, 0);
-//
-//            readBuffer.clear();
-//            writeBuffer.clear();
-//        }
-//
-//
-//        return outputImage;
-//    }
-
-    public void setCurrentHaarRectangleLabels(IHaar haarFeature) {
+    private void setCurrentHaarRectangleLabels(IHaar haarFeature) {
 
         MyBounds bounds = haarFeature.getBoundsPoints();
 
@@ -381,9 +323,8 @@ public class MainWindowController {
         pointCLabel.setText(bounds.c.toString());
         pointDLabel.setText(bounds.d.toString());
 
-
         int area = haarFeature.getArea();
-        long sumOfArea = openCVIntegralImageCreator.getSumOfArea(haarFeature);
+        long sumOfArea = imageCreator.getSumOfArea(haarFeature);
 
         rectangleArealabel.setText(nf.format(area));
         sumOfPixelsLabel.setText(nf.format(sumOfArea));
@@ -399,7 +340,6 @@ public class MainWindowController {
     }
 
     private <T extends Event> void setInitialPointLabel(T t) {
-
 
         MyPoint centerOfInitialPoint = new MyPoint(
                 initialPoint.getLayoutX() + (initialPoint.getWidth() / 2),
@@ -425,20 +365,16 @@ public class MainWindowController {
             super.updateItem(item, isEmpty);
 
             if (isEmpty || item == null) {
-//                lastItem = null;
-
-//                colorPicker.valueProperty().unbind();
-//                nameField.textProperty().unbind();
 
                 this.setText("");
                 this.setGraphic(null);
+
             } else {
 
                 isRotatedLabel = new Label(" ");
                 isRotatedLabel.prefWidth(50);
                 isRotatedLabel.minWidth(50);
                 isRotatedLabel.maxWidth(50);
-
 
                 nameField = new TextField(item.getNameProperty().get());
                 nameField.prefWidth(100);
@@ -449,15 +385,9 @@ public class MainWindowController {
                 colorPicker = new ColorPicker(item.getColorProperty().getValue());
                 hbox.getChildren().addAll(isRotatedLabel, colorPicker, nameField);
 
-
-//                colorPicker.valueProperty().unbind();
-//                item.getColorProperty().unbind();
                 item.getColorProperty().bind(colorPicker.valueProperty());
 
-//                nameField.textProperty().unbind();
-//                this.getItem().getNameProperty().unbind();
                 item.getNameProperty().bind(nameField.textProperty());
-
 
                 if (item.isRotated()) {
                     isRotatedLabel.setText("R");
@@ -474,8 +404,5 @@ public class MainWindowController {
             super.commitEdit(newValue);
 
         }
-
     }
-
-
 }

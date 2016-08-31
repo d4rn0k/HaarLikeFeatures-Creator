@@ -3,7 +3,6 @@ package com.daron;
 import com.daron.haar.features.HaarFeature;
 import com.daron.haar.features.IHaar;
 import com.daron.haar.features.TiltedHaarPolygon;
-import com.daron.utils.MyBounds;
 import javafx.event.Event;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -28,7 +27,7 @@ class DragResizeMod {
     private boolean onlyDraggable = false;
     private IonDragResizeEventListener listener;
 
-    public DragResizeMod(Node node, double maxDragOrResizeParentW, double maxDragOrResizeParentH) {
+    DragResizeMod(Node node, double maxDragOrResizeParentW, double maxDragOrResizeParentH) {
         this.maxDragOrResizeParentW = maxDragOrResizeParentW;
         this.maxDragOrResizeParentH = maxDragOrResizeParentH;
 
@@ -36,9 +35,6 @@ class DragResizeMod {
         listener = new IonDragResizeEventListener() {
             @Override
             public void onDrag(Event event, Node node1, double newX, double newY, double newWidth, double newHeight) {
-                //            Bounds boundsInParent = node.getParent().getBoundsInParent();
-                //            double width =  boundsInParent.getMaxX() - boundsInParent.getMinX();
-                //            double height = boundsInParent.getMaxY() - boundsInParent.getMinY();
 
                 if (isNodeRotated) {
                     TiltedHaarPolygon hp = (TiltedHaarPolygon) node1;
@@ -62,7 +58,6 @@ class DragResizeMod {
                     newHeight = -1; // Not change
                     newWidth = -1;  // Not change
 
-
                 } else {
                     if (newX > DragResizeMod.this.maxDragOrResizeParentW + marginForDragW - newWidth) {
                         newX = DragResizeMod.this.maxDragOrResizeParentW + marginForDragW - newWidth;
@@ -78,7 +73,6 @@ class DragResizeMod {
                     }
                 }
 
-
                 if (node1 instanceof IHaar) {
 
                     ((IHaar) node1).setNewSizeAndPosition(
@@ -91,18 +85,13 @@ class DragResizeMod {
                     //Drag initital point
                     setNodeSize(event, node1, newX, newY, newWidth, newHeight);
                 }
-
-
             }
 
             @Override
             public void onResize(Event event, Node node1, double newX, double newY, double newWidth, double newHeight) {
 
-
                 if (isNodeRotated) {
                     TiltedHaarPolygon hp = (TiltedHaarPolygon) node1;
-
-                    MyBounds bp = hp.getBoundsPoints();
 
                     if (newX + newWidth > maxDragOrResizeParentW) {
                         newWidth = maxDragOrResizeParentW - newX;
@@ -129,20 +118,20 @@ class DragResizeMod {
                         newHeight = minElementSizeHeight;
                     }
 
-
-                    System.out.format("newX=(%5.0f) newY=(%5.0f) newWidth=(%5.0f) newHeight=(%5.0f) \n",
-                            newX, newY, newWidth, newHeight);
-
                 } else {
+
                     if (newWidth > maxDragOrResizeParentW - newX) {
                         newWidth = maxDragOrResizeParentW - newX;
                     }
+
                     if (newHeight > maxDragOrResizeParentH - newY) {
                         newHeight = maxDragOrResizeParentH - newY;
                     }
+
                     if (newX < 0) {
                         newX = 0;
                     }
+
                     if (newY < 0) {
                         newY = 0;
                     }
@@ -203,7 +192,7 @@ class DragResizeMod {
         };
     }
 
-    public static void setMainWindowController(MainWindowController mainWindowController) {
+    static void setMainWindowController(MainWindowController mainWindowController) {
         DragResizeMod.mainWindowController = mainWindowController;
     }
 
@@ -237,7 +226,7 @@ class DragResizeMod {
         this.maxDragOrResizeParentH = maxDragOrResizeParentHeight;
     }
 
-    public DragResizeMod makeOnlyDraggable() {
+    DragResizeMod makeOnlyDraggable() {
         node.setOnMousePressed(this::mousePressed);
         node.setOnMouseDragged(this::mouseDragged);
         onlyDraggable = true;
@@ -245,14 +234,14 @@ class DragResizeMod {
         return this;
     }
 
-    public DragResizeMod setMarginsForDrag(double width, double height) {
+    DragResizeMod setMarginsForDrag(double width, double height) {
         marginForDragW = width;
         marginForDragH = height;
 
         return this;
     }
 
-    public DragResizeMod makeDraggableAndResizable() {
+    DragResizeMod makeDraggableAndResizable() {
 
         //Dragable
         node.setOnMousePressed(this::mousePressed);
@@ -386,9 +375,6 @@ class DragResizeMod {
                         newH = minElementSizeHeight;
                     }
 
-//                    System.out.println("MouseX= (" + mouseX + ") NodeX= (" + nodeX + ") MouseY= (" + mouseY +
-//                            ") MouseY= " + mouseY + ")");
-
                     setNewInitialEventCoordinates(event);
 
                     listener.onResize(event, node, newX, newY, newW, newH);
@@ -438,13 +424,15 @@ class DragResizeMod {
     }
 
     private MOUSESTATES currentMouseState(MouseEvent event) {
-        MOUSESTATES state = MOUSESTATES.DEFAULT;
+        MOUSESTATES state;
+
         boolean left = isLeftResizeZone(event);
         boolean right = isRightResizeZone(event);
         boolean top = isTopResizeZone(event);
         boolean bottom = isBottomResizeZone(event);
 
         if (isNodeRotated) {
+
             if (left) {
                 state = MOUSESTATES.NW_RESIZE;
             } else if (right) {
@@ -456,7 +444,7 @@ class DragResizeMod {
             } else {
                 state = MOUSESTATES.DRAG;
             }
-//            System.out.println(state);
+
             return state;
         }
 
@@ -480,27 +468,11 @@ class DragResizeMod {
             state = MOUSESTATES.DRAG;
         }
 
-//        else if (isInDragZone(event)) {
-//            state = MOUSESTATES.DRAG;
-//        }
-
         return state;
     }
 
     private boolean isInResizeZone(MouseEvent event) {
         return isLeftResizeZone(event) || isRightResizeZone(event) || isBottomResizeZone(event) || isTopResizeZone(event);
-    }
-
-    private boolean isInDragZone(MouseEvent event) {
-        double xPos = parentX(event.getX());
-        double yPos = parentY(event.getY());
-
-        double nodeX = nodeX() + ResizeEventAreaMargin;
-        double nodeY = nodeY() + ResizeEventAreaMargin;
-        double nodeX0 = nodeX() + nodeW() - ResizeEventAreaMargin;
-        double nodeY0 = nodeY() + nodeH() - ResizeEventAreaMargin;
-
-        return (xPos > nodeX && xPos < nodeX0) && (yPos > nodeY && yPos < nodeY0);
     }
 
     private boolean isLeftResizeZone(MouseEvent event) {
@@ -621,7 +593,7 @@ class DragResizeMod {
         return node.getBoundsInParent().getHeight();
     }
 
-    public DragResizeMod setNodeRotated(boolean nodeRotated) {
+    DragResizeMod setNodeRotated(boolean nodeRotated) {
         isNodeRotated = nodeRotated;
 
         return this;
@@ -639,7 +611,6 @@ class DragResizeMod {
         N_RESIZE,
         S_RESIZE
     }
-
 
     private interface IonDragResizeEventListener {
         void onDrag(Event event, Node node, double x, double y, double w, double h);

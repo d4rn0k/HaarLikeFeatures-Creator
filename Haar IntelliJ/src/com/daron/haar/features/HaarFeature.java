@@ -10,8 +10,8 @@ import javafx.scene.shape.Rectangle;
 
 public class HaarFeature extends Rectangle implements IHaar {
 
-    int x;
-    int y;
+    private int x;
+    private int y;
 
     private Property<Color> color;
     private StringProperty name;
@@ -23,14 +23,12 @@ public class HaarFeature extends Rectangle implements IHaar {
         this.name = new SimpleStringProperty("Nowa ");
         this.color = new SimpleObjectProperty<>(Color.RED.deriveColor(1, 1, 1, 0.5d));
 
-
         this.setFill(color.getValue().deriveColor(1, 1, 1, 0.7));
         this.color.addListener((observable, oldValue, newValue) -> {
             this.setFill(newValue.deriveColor(1, 1, 1, 0.7));
         });
 
         setNewSizeAndPosition(100, 100, 100, 50);
-
     }
 
     @Override
@@ -104,69 +102,5 @@ public class HaarFeature extends Rectangle implements IHaar {
 
         myBounds.d.setX((int) (x + getWidth()));
         myBounds.d.setY((int) (y + getHeight()));
-    }
-
-//    public Point2D[] getBoundsPointDEPR() {
-//
-//        Point2D a, b, c, d;
-//
-//        Bounds bounds = getBoundsInParent();
-//
-//
-//        if (isRotated.get()) {
-//
-//            double minRectangleX = Math.sqrt(Math.pow(getHeight(), 2) / 2);
-//            double maxRectangleX = Math.sqrt(Math.pow(getWidth(), 2) / 2);
-//
-//            a = new Point2D(bounds.getMinX() + minRectangleX, bounds.getMinY());
-//            b = new Point2D(bounds.getMaxX(), bounds.getMinY() + maxRectangleX);
-//            c = new Point2D(bounds.getMaxX() - minRectangleX, bounds.getMinY() + maxRectangleX + minRectangleX);
-//            d = new Point2D(bounds.getMinX(), bounds.getMinY() + minRectangleX);
-//
-//            //System.out.format("realWidth: %5.1f\nmyWidth: %5.1f\n", bounds.getWidth(), rectWidth);
-//
-//        } else {
-//            a = new Point2D(bounds.getMinX(), bounds.getMinY());
-//            b = new Point2D(bounds.getMaxX(), bounds.getMinY());
-//            c = new Point2D(bounds.getMaxX(), bounds.getMaxY());
-//            d = new Point2D(bounds.getMinX(), bounds.getMaxY());
-//        }
-//
-//        return new Point2D[]{a, b, c, d};
-//    }
-
-//    public Bounds geValidBoundsDEPR() {
-//        BoundingBox boundsToReturn;
-//
-//        Bounds rectBounds = getBoundsInParent();
-////        if (isRotated.get()) {
-////
-////            boundsToReturn = new BoundingBox(
-////                    rectBounds.getMinY(),
-////                    rectBounds.getMinX(),
-////                    getWidth(),
-////                    getHeight()
-////            );
-////
-////        } else {
-////            boundsToReturn = new BoundingBox(
-////                    rectBounds.getMinX(),
-////                    rectBounds.getMinY(),
-////                    getWidth(),
-////                    getHeight()
-////            );
-////        }
-//
-//        return boundsToReturn;
-//    }
-
-
-    public Property<Color> getColor() {
-        return color;
-    }
-
-
-    public StringProperty getName() {
-        return name;
     }
 }
