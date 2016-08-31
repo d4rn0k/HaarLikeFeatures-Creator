@@ -15,6 +15,7 @@ public class Main extends Application {
 
     private MainWindowController mainWindowController;
 
+
     public static void main(String[] args) {
         launch(args);
     }
