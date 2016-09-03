@@ -22,7 +22,5 @@ public class XMLHaarFeature {
         this.haarFeature = haarFeatures;
     }
 
-//    public XMLHaarFeature() {
-//    }
 }
 

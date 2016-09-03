@@ -1,4 +1,4 @@
-package com.daron.tests;
+package com.daron;
 
 import com.daron.haar.features.TiltedHaarPolygon;
 import com.daron.utils.OpenCVIntegralImageCreator;

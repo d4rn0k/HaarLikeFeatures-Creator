@@ -11,7 +11,7 @@ public class OpenCVIntegralImageCreator {
     private final Mat sumTable;
     private final Mat sumSquaredTable;
     private final Mat sumRotatedTable;
-    public int[][] tiltedMatrixTest;
+    public long[][] tiltedMatrixTest;
     private byte[] inputPixelsArray;
     private int imgWidth;
     private int imgHeight;
@@ -39,14 +39,14 @@ public class OpenCVIntegralImageCreator {
 
     public long getSumOfArea(IHaar haar) {
         if (haar.isRotated()) {
-            return getSquareSumOfArea(haar);
+            return getTiltedSumOfArea(haar);
         } else {
             return getNormalSumOfArea(haar);
         }
     }
 
-    private int[][] helper(Mat inputMatrix) {
-        int[][] output = new int[imgHeight + 1][imgWidth + 1];
+    private long[][] helper(Mat inputMatrix) {
+        long[][] output = new long[imgHeight + 1][imgWidth + 1];
 
         for (int i = 0; i < imgHeight + 1; i++) {
             for (int j = 0; j < imgWidth + 1; j++) {
@@ -91,7 +91,7 @@ public class OpenCVIntegralImageCreator {
         return sumArea;
     }
 
-    public long getSquareSumOfArea(IHaar haarFeature) {
+    public long getTiltedSumOfArea(IHaar haarFeature) {
         long sumArea = 0;
 
         try {

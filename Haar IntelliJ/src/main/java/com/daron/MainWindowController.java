@@ -2,9 +2,9 @@ package com.daron;
 
 import com.daron.haar.features.*;
 import com.daron.utils.GrayScaleConverter;
-import com.daron.utils.IntegralImageCreator;
 import com.daron.utils.MyBounds;
 import com.daron.utils.MyPoint;
+import com.daron.utils.OpenCVIntegralImageCreator;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -93,7 +93,7 @@ public class MainWindowController {
     @FXML
     public Label avgLabel;
 
-    private IntegralImageCreator imageCreator;
+    private OpenCVIntegralImageCreator imageCreator;
 
     private double imgWidth;
     private double imgHeight;
@@ -304,8 +304,8 @@ public class MainWindowController {
         Image grayScaleImage = convertToGrayScale(inputImage);
         byte[] grayScaleByteArray = GrayScaleConverter.getGrayScaleByteArray();
 
-//        imageCreator = new OpenCVIntegralImageCreator(grayScaleByteArray, imgWidth, imgHeight);
-        imageCreator = new IntegralImageCreator(grayScaleByteArray, imgWidth, imgHeight);
+        imageCreator = new OpenCVIntegralImageCreator(grayScaleByteArray, imgWidth, imgHeight);
+//        imageCreator = new IntegralImage(grayScaleByteArray, imgWidth, imgHeight);
 
         return grayScaleImage;
     }

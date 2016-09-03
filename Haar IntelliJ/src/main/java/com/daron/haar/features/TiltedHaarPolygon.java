@@ -27,7 +27,7 @@ public class TiltedHaarPolygon extends Polygon implements IHaar {
 
         this.setFill(color.getValue().deriveColor(1, 1, 1, 0.7));
         this.color.addListener((observable, oldValue, newValue) -> {
-            this.setFill(newValue.deriveColor(1, 1, 1, 0.7));
+            this.setFill(newValue);
         });
 
         setNewSizeAndPosition(x, y, width, height);
@@ -107,14 +107,14 @@ public class TiltedHaarPolygon extends Polygon implements IHaar {
         myBounds.a.setX(x);
         myBounds.a.setY(y);
 
-        myBounds.b.setX(x + width - 1);
-        myBounds.b.setY(y + width - 1);
+        myBounds.b.setX(x + width);
+        myBounds.b.setY(y + width);
 
-        myBounds.c.setX(x + width - height - 1);
-        myBounds.c.setY(y + width + height - 1);
+        myBounds.c.setX(x + width - height);
+        myBounds.c.setY(y + width + height);
 
-        myBounds.d.setX(x - height - 1);
-        myBounds.d.setY(y + height - 1);
+        myBounds.d.setX(x - height);
+        myBounds.d.setY(y + height);
     }
 
     private void updateABCDPoints() {
@@ -127,6 +127,7 @@ public class TiltedHaarPolygon extends Polygon implements IHaar {
         );
     }
 
+    @SuppressWarnings("SuspiciousNameCombination")
     public void rotate45() {
         // width <--> height
         setNewSizeAndPosition(x, y, height, width);

@@ -1,4 +1,4 @@
-package com.daron.tests;
+package com.daron;
 
 public class GrayScaleConverterTest {
     @org.junit.Test

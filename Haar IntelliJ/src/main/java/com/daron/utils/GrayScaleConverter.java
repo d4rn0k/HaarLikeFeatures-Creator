@@ -33,7 +33,6 @@ public class GrayScaleConverter {
         ByteBuffer readBuffer = ByteBuffer.allocate(channels * imgWidth);
         ByteBuffer writeBuffer = ByteBuffer.allocate(imgWidth * imgHeight);
 
-
         for (int rowIndex = 0; rowIndex < imgHeight; rowIndex++) {
             inputImage.getPixelReader().getPixels(0, rowIndex, imgWidth, 1, byteBufferWritablePixelFormat,
                     readBuffer, 0);

@@ -21,7 +21,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(Main.class.getResource("MainWindow.fxml"));
+        FXMLLoader loader = new FXMLLoader(Main.class.getClassLoader().getResource("MainWindow.fxml"));
 
         Parent root = (Pane) loader.load();
 
@@ -32,9 +32,9 @@ public class Main extends Application {
 
         mainWindowController.imageViewPane.setOnMouseMoved(event -> {
             String msg =
-                    String.format("(x: %4.0f , y: %4.0f) ",
-                            event.getX(),
-                            event.getY()
+                    String.format("(x: % 4d , y: % 4d) ",
+                            Math.round(event.getX()),
+                            Math.round(event.getY())
                     );
 
             mainWindowController.mouseMonitor.setText(msg);
