@@ -12,7 +12,6 @@ public class OpenCVIntegralImageCreator extends IntegralCreatorAbstract {
     private final Mat sumPow2;
     private final Mat sumTilted;
 
-
     public OpenCVIntegralImageCreator(byte[] inputPixelsArray, int width, int height) {
         super(inputPixelsArray, width, height);
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -21,18 +20,17 @@ public class OpenCVIntegralImageCreator extends IntegralCreatorAbstract {
         sumTable = new Mat(imgHeight + 1, imgWidth + 1, CvType.CV_32F);
         sumTilted = new Mat(imgHeight + 1, imgWidth + 1, CvType.CV_32F);
 
-
         calculate();
         tiltedMatrixTest = helper(sumTilted);
     }
 
-
     @Override
     protected void calculate() {
         Mat inputImgMat = new Mat(imgHeight, imgWidth, CvType.CV_8U);
-        inputImgMat.put(0, 0, inputPixelsArray);
-        Imgproc.integral3(inputImgMat, sumTable, sumPow2, sumTilted);
 
+        inputImgMat.put(0, 0, inputPixelsArray);
+
+        Imgproc.integral3(inputImgMat, sumTable, sumPow2, sumTilted);
     }
 
     @Override

@@ -14,8 +14,14 @@ public class XMLHaarFeature {
     private final int initialPointX;
     private final int getInitialPointY;
     @XmlElement(name = "rect")
-    private final
-    List<XMLHaar> haarFeature;
+    private final List<XMLHaar> haarFeature;
+
+    public XMLHaarFeature() {
+
+        initialPointX = 0;
+        getInitialPointY = 0;
+        haarFeature = null;
+    }
 
     public XMLHaarFeature(int initialPointX, int getInitialPointY, List<XMLHaar> haarFeatures) {
         this.initialPointX = initialPointX;

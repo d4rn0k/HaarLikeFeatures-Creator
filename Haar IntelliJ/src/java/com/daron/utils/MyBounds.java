@@ -1,6 +1,5 @@
 package com.daron.utils;
 
-
 public class MyBounds {
 
     public final MyPoint a;

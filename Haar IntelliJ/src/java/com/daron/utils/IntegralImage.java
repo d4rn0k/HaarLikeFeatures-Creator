@@ -21,7 +21,7 @@ public class IntegralImage extends IntegralCreatorAbstract {
         calculate();
 
         Instant end = Instant.now();
-        System.out.println("MyIntegralImage Calculate method: " + Duration.between(start, end).toMillis() + "ms");
+        System.out.println("MyIntegralImage Calculate call time: " + Duration.between(start, end).toMillis() + "ms");
     }
 
     @Override

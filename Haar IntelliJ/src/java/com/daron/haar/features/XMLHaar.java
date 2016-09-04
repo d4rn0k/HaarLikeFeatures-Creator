@@ -14,8 +14,7 @@ public class XMLHaar {
     private final int width;
     private final int height;
     @XmlAttribute
-    private final
-    boolean isRotated;
+    private final boolean isRotated;
 
     public XMLHaar(int x, int y, int width, int height, boolean isRotated) {
         this.x = x;
@@ -25,4 +24,12 @@ public class XMLHaar {
         this.isRotated = isRotated;
     }
 
+    public XMLHaar() {
+
+        x = 0;
+        y = 0;
+        width = 0;
+        height = 0;
+        isRotated = false;
+    }
 }

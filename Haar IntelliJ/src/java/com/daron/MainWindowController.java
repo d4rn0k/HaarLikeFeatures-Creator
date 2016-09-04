@@ -25,6 +25,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -295,7 +297,13 @@ public class MainWindowController {
         int imgWidth = (int) inputImage.getWidth();
         int imgHeight = (int) inputImage.getHeight();
 
+        Instant start = Instant.now();
+
         Image grayScaleImage = convertToGrayScale(inputImage);
+
+        Instant end = Instant.now();
+        System.out.println("Convert to grayScale call time : " + Duration.between(start, end).toMillis() + "ms");
+
         byte[] grayScaleByteArray = GrayScaleConverter.getGrayScaleByteArray();
 
 //        imageCreator = new OpenCVIntegralImageCreator(grayScaleByteArray, imgWidth, imgHeight);
@@ -342,6 +350,7 @@ public class MainWindowController {
 
         initialPointLabel.setText((centerOfInitialPoint.toString()));
     }
+
 
     private static class HaarListViewCell extends ListCell<IHaar> {
 
