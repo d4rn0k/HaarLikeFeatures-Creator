@@ -20,10 +20,10 @@ import static org.junit.Assert.assertArrayEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IntegralTest {
-    int n;
-    byte[] byteTestArray;
-    int size;
-    long sum;
+    private int n;
+    private byte[] byteTestArray;
+    private int size;
+    private long sum;
 
     private IntegralImage integralImage;
     private OpenCVIntegralImageCreator openCVIntegralImageCreator;
@@ -68,7 +68,7 @@ public class IntegralTest {
 
         showDiffs(openCVMatrix, myMatrix);
 
-        TestCase.assertEquals(openCVIntegralImageCreator.getTiltedSumOfArea(tiltedHaar), integralImage.getSumOfArea(tiltedHaar));
+        TestCase.assertEquals(openCVIntegralImageCreator.getSumOfArea(tiltedHaar), integralImage.getSumOfArea(tiltedHaar));
     }
 
     @Test

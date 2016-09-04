@@ -10,15 +10,13 @@ import javafx.scene.shape.Polygon;
 
 public class TiltedHaarPolygon extends Polygon implements IHaar {
 
+    private final Property<Color> color;
+    private final StringProperty name;
+    private final MyBounds myBounds;
     private int x = 100;
     private int y = 100;
     private int width = 100;
     private int height = 60;
-
-    private Property<Color> color;
-    private StringProperty name;
-
-    private MyBounds myBounds;
 
     public TiltedHaarPolygon() {
         myBounds = new MyBounds();
@@ -26,9 +24,7 @@ public class TiltedHaarPolygon extends Polygon implements IHaar {
         this.color = new SimpleObjectProperty<>(Color.RED.deriveColor(1, 1, 1, 0.5d));
 
         this.setFill(color.getValue().deriveColor(1, 1, 1, 0.7));
-        this.color.addListener((observable, oldValue, newValue) -> {
-            this.setFill(newValue);
-        });
+        this.color.addListener((observable, oldValue, newValue) -> this.setFill(newValue));
 
         setNewSizeAndPosition(x, y, width, height);
     }

@@ -51,29 +51,27 @@
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                         </rowConstraints>
-                        <children>
-                            <Label text="A" GridPane.rowIndex="1"/>
-                            <Label text="B" GridPane.rowIndex="2"/>
-                            <Label text="C" GridPane.rowIndex="3"/>
-                            <Label text="D" GridPane.rowIndex="4"/>
-                            <Label fx:id="pointALabel" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                            <Label fx:id="pointBLabel" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                            <Label fx:id="pointCLabel" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-                            <Label fx:id="pointDLabel" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
-                            <Label prefHeight="17.0" prefWidth="96.0" text="Sum" GridPane.rowIndex="6"/>
-                            <Label fx:id="sumOfPixelsLabel" prefHeight="17.0" prefWidth="64.0" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
-                            <Label text="Area" GridPane.rowIndex="5"/>
-                            <Label fx:id="rectangleArealabel" prefHeight="17.0" prefWidth="58.0" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
-                            <Label text="Wymiary:(w,h)"/>
-                            <Label fx:id="rectangleWidthHeightLabel" GridPane.columnIndex="1"/>
+                        <Label text="A" GridPane.rowIndex="1"/>
+                        <Label text="B" GridPane.rowIndex="2"/>
+                        <Label text="C" GridPane.rowIndex="3"/>
+                        <Label text="D" GridPane.rowIndex="4"/>
+                        <Label fx:id="pointALabel" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        <Label fx:id="pointBLabel" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                        <Label fx:id="pointCLabel" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                        <Label fx:id="pointDLabel" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                        <Label prefHeight="17.0" prefWidth="96.0" text="Sum" GridPane.rowIndex="6"/>
+                        <Label fx:id="sumOfPixelsLabel" prefHeight="17.0" prefWidth="64.0" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+                        <Label text="Area" GridPane.rowIndex="5"/>
+                        <Label fx:id="rectangleArealabel" prefHeight="17.0" prefWidth="58.0" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+                        <Label text="Wymiary:(w,h)"/>
+                        <Label fx:id="rectangleWidthHeightLabel" GridPane.columnIndex="1"/>
 
-                            <!--<Label prefHeight="17.0" prefWidth="106.0" text="Wartość cechy:" GridPane.rowIndex="7" />-->
-                            <!--<Label fx:id="labelHaarValue" GridPane.columnIndex="1" GridPane.rowIndex="7" />-->
-                            <Label text="Odl. od  pkt:" GridPane.rowIndex="8"/>
-                            <Label fx:id="fromInitialPointDistanceLabel" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
-                            <Label text="Avg:" GridPane.rowIndex="7"/>
-                            <Label fx:id="avgLabel" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
-                        </children>
+                        <!--<Label prefHeight="17.0" prefWidth="106.0" text="Wartość cechy:" GridPane.rowIndex="7" />-->
+                        <!--<Label fx:id="labelHaarValue" GridPane.columnIndex="1" GridPane.rowIndex="7" />-->
+                        <Label text="Odl. od  pkt:" GridPane.rowIndex="8"/>
+                        <Label fx:id="fromInitialPointDistanceLabel" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+                        <Label text="Avg:" GridPane.rowIndex="7"/>
+                        <Label fx:id="avgLabel" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
                     </GridPane>
                     <Label layoutX="5.0" layoutY="6.0" text="Punkt startowy:">
                         <font>
@@ -83,23 +81,21 @@
                     <Label fx:id="initialPointLabel" layoutX="110.0" layoutY="6.0" text="współrzędne:"/>
                 </Pane>
                 <HBox layoutX="1.0" layoutY="189.0" prefHeight="32.0" prefWidth="260.0">
-                    <children>
-                        <Button mnemonicParsing="false" onAction="#handleAddNewHaar" text="Dodaj">
-                            <HBox.margin>
-                                <Insets left="5.0"/>
-                            </HBox.margin>
-                        </Button>
-                        <Button mnemonicParsing="false" onAction="#handleAddNewRotatedHaar" text="Dodaj obr.">
-                            <HBox.margin>
-                                <Insets left="5.0"/>
-                            </HBox.margin>
-                        </Button>
-                        <Button mnemonicParsing="false" onAction="#handleDeleteHaar" text="Usuń">
-                            <HBox.margin>
-                                <Insets left="5.0"/>
-                            </HBox.margin>
-                        </Button>
-                    </children>
+                    <Button mnemonicParsing="false" onAction="#handleAddNewHaar" text="Dodaj">
+                        <HBox.margin>
+                            <Insets left="5.0"/>
+                        </HBox.margin>
+                    </Button>
+                    <Button mnemonicParsing="false" onAction="#handleAddNewRotatedHaar" text="Dodaj obr.">
+                        <HBox.margin>
+                            <Insets left="5.0"/>
+                        </HBox.margin>
+                    </Button>
+                    <Button mnemonicParsing="false" onAction="#handleDeleteHaar" text="Usuń">
+                        <HBox.margin>
+                            <Insets left="5.0"/>
+                        </HBox.margin>
+                    </Button>
                 </HBox>
             </AnchorPane>
         </right>

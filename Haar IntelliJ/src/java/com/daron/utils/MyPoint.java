@@ -2,8 +2,8 @@ package com.daron.utils;
 
 public class MyPoint {
 
-    int x;
     int y;
+    private int x;
 
     public MyPoint(double x, double y) {
         this.x = (int) Math.round(x);

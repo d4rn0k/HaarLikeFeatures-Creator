@@ -1,10 +1,7 @@
 package com.daron;
 
 import com.daron.haar.features.*;
-import com.daron.utils.GrayScaleConverter;
-import com.daron.utils.MyBounds;
-import com.daron.utils.MyPoint;
-import com.daron.utils.OpenCVIntegralImageCreator;
+import com.daron.utils.*;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -38,6 +35,7 @@ import static com.daron.utils.GrayScaleConverter.convertToGrayScale;
 @XmlRootElement
 public class MainWindowController {
 
+    private final NumberFormat nf = NumberFormat.getNumberInstance(Locale.getDefault());
     @FXML
     public Label imgStatusLabel;
     @FXML
@@ -92,14 +90,10 @@ public class MainWindowController {
     public Label fromInitialPointDistanceLabel;
     @FXML
     public Label avgLabel;
-
-    private OpenCVIntegralImageCreator imageCreator;
-
+    private IntegralCreatorAbstract imageCreator;
     private double imgWidth;
     private double imgHeight;
-
     private Canvas initialPoint;
-    private NumberFormat nf = NumberFormat.getNumberInstance(Locale.getDefault());
 
     @FXML
     private void initialize() {
@@ -118,7 +112,7 @@ public class MainWindowController {
 
         setInitialPointGraphicsContext();
 
-        initialPoint.addEventFilter(MouseEvent.MOUSE_DRAGGED, this::setInitialPointLabel);
+        initialPoint.addEventFilter(MouseEvent.MOUSE_DRAGGED, (t) -> setInitialPointLabel());
 
         DragResizeMod initialPointResizer = new DragResizeMod(initialPoint, imgWidth, imgHeight);
         initialPointResizer.setMarginsForDrag(initialPoint.getWidth() / 2, initialPoint.getHeight() / 2)
@@ -304,8 +298,8 @@ public class MainWindowController {
         Image grayScaleImage = convertToGrayScale(inputImage);
         byte[] grayScaleByteArray = GrayScaleConverter.getGrayScaleByteArray();
 
-        imageCreator = new OpenCVIntegralImageCreator(grayScaleByteArray, imgWidth, imgHeight);
-//        imageCreator = new IntegralImage(grayScaleByteArray, imgWidth, imgHeight);
+//        imageCreator = new OpenCVIntegralImageCreator(grayScaleByteArray, imgWidth, imgHeight);
+        imageCreator = new IntegralImage(grayScaleByteArray, imgWidth, imgHeight);
 
         return grayScaleImage;
     }
@@ -339,7 +333,7 @@ public class MainWindowController {
                 .getLayoutY() - 5);
     }
 
-    private <T extends Event> void setInitialPointLabel(T t) {
+    private <T extends Event> void setInitialPointLabel() {
 
         MyPoint centerOfInitialPoint = new MyPoint(
                 initialPoint.getLayoutX() + (initialPoint.getWidth() / 2),

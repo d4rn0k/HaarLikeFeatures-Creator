@@ -11,7 +11,7 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    DoubleProperty imagePadding = new SimpleDoubleProperty(10.0);
+    private final DoubleProperty imagePadding = new SimpleDoubleProperty(10.0);
 
     private MainWindowController mainWindowController;
 

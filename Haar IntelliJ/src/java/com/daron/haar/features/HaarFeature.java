@@ -10,12 +10,11 @@ import javafx.scene.shape.Rectangle;
 
 public class HaarFeature extends Rectangle implements IHaar {
 
+    private final Property<Color> color;
+    private final StringProperty name;
+    private final MyBounds myBounds;
     private int x;
     private int y;
-
-    private Property<Color> color;
-    private StringProperty name;
-    private MyBounds myBounds;
 
     public HaarFeature() {
         super(100, 50);
@@ -24,9 +23,7 @@ public class HaarFeature extends Rectangle implements IHaar {
         this.color = new SimpleObjectProperty<>(Color.RED.deriveColor(1, 1, 1, 0.5d));
 
         this.setFill(color.getValue().deriveColor(1, 1, 1, 0.7));
-        this.color.addListener((observable, oldValue, newValue) -> {
-            this.setFill(newValue.deriveColor(1, 1, 1, 0.7));
-        });
+        this.color.addListener((observable, oldValue, newValue) -> this.setFill(newValue.deriveColor(1, 1, 1, 0.7)));
 
         setNewSizeAndPosition(100, 100, 100, 50);
     }

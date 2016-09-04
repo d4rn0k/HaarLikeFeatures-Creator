@@ -11,9 +11,10 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class XMLHaarFeature {
 
-    int initialPointX;
-    int getInitialPointY;
+    private final int initialPointX;
+    private final int getInitialPointY;
     @XmlElement(name = "rect")
+    private final
     List<XMLHaar> haarFeature;
 
     public XMLHaarFeature(int initialPointX, int getInitialPointY, List<XMLHaar> haarFeatures) {

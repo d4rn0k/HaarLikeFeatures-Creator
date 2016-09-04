@@ -11,16 +11,3 @@
     -fx-background: bisque;
 }
 
-.resizeCircle {
-    -fx-fill: white;
-    -fx-stroke: black;
-    -fx-stroke-type: outside;
-    -fx-stroke-width: 1px;
-}
-
-.haarLikeFeature {
-    -fx-fill: transparent;
-    -fx-stroke: black;
-    -fx-stroke-type: outside;
-    -fx-stroke-width: 1px;
-}

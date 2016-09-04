@@ -16,6 +16,8 @@ class DragResizeMod {
     private final static double minElementSizeHeight = 15;
     private static MainWindowController mainWindowController;
     private final int ResizeEventAreaMargin = 5;
+    private final Node node;
+    private final IonDragResizeEventListener listener;
     private double initClickX, initClickY, nodeX, nodeY, nodeH, nodeW;
     private double maxDragOrResizeParentW;
     private double maxDragOrResizeParentH;
@@ -23,9 +25,7 @@ class DragResizeMod {
     private double marginForDragH = 0;
     private boolean isNodeRotated = false;
     private MOUSESTATES state = MOUSESTATES.DEFAULT;
-    private Node node;
     private boolean onlyDraggable = false;
-    private IonDragResizeEventListener listener;
 
     DragResizeMod(Node node, double maxDragOrResizeParentW, double maxDragOrResizeParentH) {
         this.maxDragOrResizeParentW = maxDragOrResizeParentW;
@@ -226,6 +226,7 @@ class DragResizeMod {
         this.maxDragOrResizeParentH = maxDragOrResizeParentHeight;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     DragResizeMod makeOnlyDraggable() {
         node.setOnMousePressed(this::mousePressed);
         node.setOnMouseDragged(this::mouseDragged);
@@ -241,6 +242,7 @@ class DragResizeMod {
         return this;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     DragResizeMod makeDraggableAndResizable() {
 
         //Dragable

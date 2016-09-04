@@ -9,11 +9,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class XMLHaar {
 
-    int x;
-    int y;
-    int width;
-    int height;
+    private final int x;
+    private final int y;
+    private final int width;
+    private final int height;
     @XmlAttribute
+    private final
     boolean isRotated;
 
     public XMLHaar(int x, int y, int width, int height, boolean isRotated) {

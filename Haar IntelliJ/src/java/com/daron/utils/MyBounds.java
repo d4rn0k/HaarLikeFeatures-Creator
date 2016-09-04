@@ -3,7 +3,10 @@ package com.daron.utils;
 
 public class MyBounds {
 
-    public MyPoint a, b, c, d;
+    public final MyPoint a;
+    public final MyPoint b;
+    public final MyPoint c;
+    public final MyPoint d;
 
     public MyBounds() {
         this.a = new MyPoint();
