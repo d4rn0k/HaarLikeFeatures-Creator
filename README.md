@@ -22,7 +22,7 @@ Screenshoot:
 
 ### How to use?
 
-Add new rectangle or tilted rectangle via right menu.
+Add new rectangle or tilted rectangle via menu, or right box.
 You can move initial point and rectangles. Rectangles also can be resized via dragging on edges.
 Finally, you can save as .xml with File -> "Save Haar-like features as .xml" option.
 
