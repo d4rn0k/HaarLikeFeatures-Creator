@@ -1,14 +1,12 @@
 package com.daron.utils;
 
+public class IntegralImageCreator extends IntegralCreatorAbstract {
 
-public class IntegralImage extends IntegralCreatorAbstract {
-
-    public final long[][] integralSumTilted;
     private final long[][] integralSum;
+    private final long[][] integralSumTilted;
     private final long[][] integralSumPow2;
 
-
-    public IntegralImage(byte[] inputPixelsArray, int width, int height) {
+    public IntegralImageCreator(byte[] inputPixelsArray, int width, int height) {
         super(inputPixelsArray, width, height);
 
         integralSum = new long[height + 1][width + 1];
@@ -19,7 +17,7 @@ public class IntegralImage extends IntegralCreatorAbstract {
     }
 
     @Override
-    void calculate() {
+    public void calculate() {
 
         int iYIndex = 0;
         int iXIndex = 0;
@@ -42,28 +40,26 @@ public class IntegralImage extends IntegralCreatorAbstract {
                 integralSum[y][x] = integralSum[y - 1][x] + sum;
                 integralSumPow2[y][x] = integralSumPow2[y - 1][x] + sum2;
 
-                long rsatVal1 = getTiltedValFrom(x - 1, y - 1);
-                long rsatVal2 = getTiltedValFrom(x + 1, y - 1);
-                long rsatVal3 = getTiltedValFrom(x, y - 2);
+                long rSatVal1 = getTiltedSummedValueForPoint(x - 1, y - 1);
+                long rSatVal2 = getTiltedSummedValueForPoint(x + 1, y - 1);
+                long rSatVal3 = getTiltedSummedValueForPoint(x, y - 2);
                 long valFromByteArray1 = getValFromByteArray(iXIndex % imgWidth, iYIndex);
                 long valFromByteArray2 = getValFromByteArray(iXIndex % imgWidth, iYIndex - 1);
 
-                long l = rsatVal1
-                        + rsatVal2
-                        - rsatVal3
+                long l = rSatVal1
+                        + rSatVal2
+                        - rSatVal3
                         + valFromByteArray1
                         + valFromByteArray2;
 
                 integralSumTilted[y][x] = l;
 
                 if (y > 2 && x == imgWidth) {
-                    long ll = rsatVal1
-                            + getTiltedValFrom(imgWidth, y - 2) //Diffrence!
-                            - rsatVal3
+                    integralSumTilted[y][imgWidth] = rSatVal1
+                            + getTiltedSummedValueForPoint(imgWidth, y - 2)
+                            - rSatVal3
                             + valFromByteArray1
                             + valFromByteArray2;
-
-                    integralSumTilted[y][imgWidth] = ll;
                 }
                 iXIndex++;
             }
@@ -71,26 +67,13 @@ public class IntegralImage extends IntegralCreatorAbstract {
         }
     }
 
-    private long getValFromByteArray(int x, int y) {
-
-        if (x < 0 || y < 0) {
-            return 0L;
-        }
-
-        if (x > imgWidth - 1 || y > imgHeight - 1) {
-            return 0L;
-        }
-
-        return Byte.toUnsignedLong(inputPixelsArray[(y) * imgWidth + x]);
-    }
-
     @Override
-    long getNormalValFrom(int x, int y) {
+    public long getSummedValueForPoint(int x, int y) {
         return integralSum[y][x];
     }
 
     @Override
-    long getTiltedValFrom(int x, int y) {
+    public long getTiltedSummedValueForPoint(int x, int y) {
         if (x == -1 || y == -1 || y == -2) {
             return 0L;
         }
@@ -107,7 +90,21 @@ public class IntegralImage extends IntegralCreatorAbstract {
     }
 
     @Override
-    long getPow2tValFrom(int x, int y) {
+    public long getPower2SummedValueForPoint(int x, int y) {
         return integralSumPow2[y][x];
     }
+
+    private long getValFromByteArray(int x, int y) {
+
+        if (x < 0 || y < 0) {
+            return 0L;
+        }
+
+        if (x > imgWidth - 1 || y > imgHeight - 1) {
+            return 0L;
+        }
+
+        return Byte.toUnsignedLong(inputPixelsArray[(y) * imgWidth + x]);
+    }
+
 }

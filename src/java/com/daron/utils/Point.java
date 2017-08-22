@@ -1,21 +1,21 @@
 package com.daron.utils;
 
-public class MyPoint {
+public class Point {
 
-    int y;
+    private int y;
     private int x;
 
-    public MyPoint(double x, double y) {
+    public Point(double x, double y) {
         this.x = (int) Math.round(x);
         this.y = (int) Math.round(y);
     }
 
-    MyPoint() {
+    Point() {
         this.x = 0;
         this.y = 0;
     }
 
-    public MyPoint(int x, int y) {
+    public Point(int x, int y) {
         this.x = x;
         this.y = y;
     }

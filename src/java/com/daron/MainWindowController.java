@@ -2,16 +2,17 @@ package com.daron;
 
 import com.daron.haar.features.*;
 import com.daron.utils.*;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -30,113 +31,113 @@ import java.util.Locale;
 
 import static com.daron.utils.GrayScaleConverter.convertToGrayScale;
 
-
 @XmlRootElement
 public class MainWindowController {
 
-    private IntegralCreatorAbstract imageCreator;
+    private IntegralCreatorAbstract integralCreator;
     private double imgWidth;
     private double imgHeight;
     private Canvas initialPoint;
     private final NumberFormat nf = NumberFormat.getNumberInstance(Locale.getDefault());
 
     @FXML
-    public Label imgStatusLabel;
-    @FXML
-    public ImageView imageView;
-    @FXML
-    public ScrollPane scrollPane;
-    @FXML
     public Pane imageViewPane;
+
     @FXML
-    public Label mouseMonitor;
+    private ListView<HaarFeature> haarListView;
     @FXML
-    public Label pointALabel;
+    private ImageView imageView;
+
     @FXML
-    public Label pointBLabel;
+    private Label mouseMonitorLabel;
     @FXML
-    public Label pointCLabel;
+    private Label imgStatusLabel;
     @FXML
-    public Label pointDLabel;
+    private Label pointALabel, pointBLabel, pointCLabel, pointDLabel;
     @FXML
-    public Label rectangleArealabel;
+    private Label rectangleAreaLabel;
     @FXML
-    public Label sumOfPixelsLabel;
+    private Label sumOfPixelsLabel;
     @FXML
-    public Label rectangleWidthHeightLabel;
+    private Label rectangleWidthHeightLabel;
     @FXML
-    public AnchorPane anchorPaneForImageView;
+    private Label initialPointCordsLabel;
     @FXML
-    public ListView<IHaar> haarListView;
+    private Label fromInitialPointDistanceLabel;
     @FXML
-    public Label initialPointLabel;
-    @FXML
-    public Label fromInitialPointDistanceLabel;
-    @FXML
-    public Label avgLabel;
+    private Label avgOfPixelsLabel;
+
+    private DoubleProperty imageMargin = new SimpleDoubleProperty(5);
 
     @FXML
     private void initialize() {
         openImage(new File("example-input-image.jpg"));
 
-        DragResizeMod.setMainWindowController(this);
-
         haarListView.setCellFactory(lv -> new HaarListViewCell());
-
         imageViewPane.addEventFilter(MouseEvent.ANY, event -> {
-            IHaar selectedItem = haarListView.getSelectionModel().getSelectedItem();
+            HaarFeature selectedItem = haarListView.getSelectionModel().getSelectedItem();
             if (selectedItem != null) {
                 setCurrentHaarRectangleLabels(selectedItem);
             }
+
+            mouseMonitorLabel.setText(String.format("(x: % 4d , y: % 4d) ",
+                    Math.round(event.getX()),
+                    Math.round(event.getY())
+            ));
         });
 
-        setInitialPointGraphicsContext();
+        imageViewPane.setTranslateX(imageMargin.doubleValue());
+        imageViewPane.setTranslateY(imageMargin.doubleValue());
 
-        initialPoint.addEventFilter(MouseEvent.MOUSE_DRAGGED, (t) -> setInitialPointLabel());
-
-        DragResizeMod initialPointResizer = new DragResizeMod(initialPoint, imgWidth, imgHeight);
-        initialPointResizer.setMarginsForDrag(initialPoint.getWidth() / 2, initialPoint.getHeight() / 2)
-                .makeOnlyDraggable();
-
-
-        imageViewPane.getChildren().add(initialPoint);
+        addInitialPoint();
         handleAddNewHaar(null);
     }
 
-    private void setInitialPointGraphicsContext() {
-        initialPoint = new Canvas(10, 10);
-        initialPoint.setLayoutX(10);
-        initialPoint.setLayoutY(10);
+    @FXML
+    private void handleAddNewHaar(ActionEvent actionEvent) {
+        setHaarFeatureListeners(new RectangleHaarFeature());
+    }
 
-        GraphicsContext gc = initialPoint.getGraphicsContext2D();
+    @FXML
+    private void handleAddNewRotatedHaar(ActionEvent actionEvent) {
+        setHaarFeatureListeners(new TiltedRectangleHaarFeature());
+    }
 
-        gc.setFill(Color.YELLOW.deriveColor(1, 1, 1, 0.4));
-        gc.fillRect(0, 0, 10, 10);
+    @FXML
+    private void handleDeleteHaar(ActionEvent actionEvent) {
+        HaarFeature selectedItem = haarListView.getSelectionModel().getSelectedItem();
 
-        gc.setLineWidth(1.0);
+        if (selectedItem != null) {
+            selectedItem.getColorProperty().unbind();
+            selectedItem.getNameProperty().unbind();
 
-        gc.moveTo(0, 5);
-        gc.lineTo(10, 5);
-        gc.stroke();
+            haarListView.getItems().remove(selectedItem);
+            imageViewPane.getChildren().remove(selectedItem);
 
-        gc.moveTo(5, 0);
-        gc.lineTo(5, 10);
-        gc.stroke();
+            haarListView.refresh();
+        }
     }
 
     @FXML
     private void handleOpenFile() {
         FileChooser fileChooser = new FileChooser();
 
-        FileChooser.ExtensionFilter extFilterJPG = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG");
-        FileChooser.ExtensionFilter extFilterPNG = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.PNG");
+        FileChooser.ExtensionFilter extFilterJPG =
+                new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG");
+        FileChooser.ExtensionFilter extFilterPNG =
+                new FileChooser.ExtensionFilter("PNG files (*.png)", "*.PNG");
         fileChooser.getExtensionFilters().addAll(extFilterJPG, extFilterPNG);
 
+        haarListView.getItems().clear();
+        imageViewPane.getChildren().retainAll(imageView);
+
         openImage(fileChooser.showOpenDialog(null));
+
+        addInitialPoint();
     }
 
     @FXML
-    public void handleSaveHaarFeatureAsFile(ActionEvent actionEvent) throws JAXBException, IOException {
+    private void handleSaveHaarFeaturesAsFile(ActionEvent actionEvent) throws JAXBException, IOException {
         JAXBContext jc = JAXBContext.newInstance(XMLHaarFeature.class);
 
         Marshaller marshaller = jc.createMarshaller();
@@ -144,15 +145,15 @@ public class MainWindowController {
 
         List<XMLHaar> xmlList = new ArrayList<>();
 
-        for (IHaar singleHaar : haarListView.getItems()) {
+        for (HaarFeature singleHaar : haarListView.getItems()) {
 
-            MyPoint distanceFromInitialPoint = getDistanceFromInitialPoint(singleHaar);
+            Point distanceFromInitialPoint = getDistanceFromInitialPoint(singleHaar);
 
             xmlList.add(new XMLHaar(
                     distanceFromInitialPoint.getX(),
                     distanceFromInitialPoint.getY(),
-                    singleHaar.getIntegerWidth(),
-                    singleHaar.getIntegerHeight(),
+                    singleHaar.getWidthInteger(),
+                    singleHaar.getHeightInteger(),
                     singleHaar.isRotated()
             ));
         }
@@ -167,7 +168,7 @@ public class MainWindowController {
 
         FileChooser fc = new FileChooser();
         fc.setInitialDirectory(new File("."));
-        fc.setTitle("Zapisz cechy haara do pliku XML!");
+        fc.setTitle("Save Haar-like features to .xml File");
 
         File file = fc.showSaveDialog(null);
         if (file == null) {
@@ -175,44 +176,82 @@ public class MainWindowController {
         }
 
         marshaller.marshal(xmlHaarFeature, file);
-        file.createNewFile();
+
+        if (file.createNewFile()) {
+            System.out.println("Created new file");
+        }
     }
 
-    @FXML
-    public void handleAddNewHaar(ActionEvent actionEvent) {
-        addNewHaarAndSetListeners(false);
+
+    private void addInitialPoint() {
+        setInitialPointGraphicsContext();
+        setInitialPointLabel();
+        setInitialPointListeners();
+        imageViewPane.getChildren().add(initialPoint);
     }
 
-    @FXML
-    public void handleAddNewRotatedHaar(ActionEvent actionEvent) {
-        addNewHaarAndSetListeners(true);
+    private void setInitialPointGraphicsContext() {
+        initialPoint = new Canvas(10, 10);
+        initialPoint.setLayoutX(10);
+        initialPoint.setLayoutY(10);
+
+        GraphicsContext gc = initialPoint.getGraphicsContext2D();
+
+        gc.setFill(Color.YELLOW.deriveColor(1, 1, 1, 0.7));
+        gc.fillRect(0, 0, 10, 10);
+
+        gc.setLineWidth(1.0);
+
+        gc.moveTo(0, 5);
+        gc.lineTo(10, 5);
+        gc.stroke();
+
+        gc.moveTo(5, 0);
+        gc.lineTo(5, 10);
+        gc.stroke();
     }
 
-    void setListViewSelection(IHaar selection) {
-        haarListView.getSelectionModel().select(selection);
+    private void setInitialPointLabel() {
+
+        Point centerOfInitialPoint = new Point(
+                initialPoint.getLayoutX() + (initialPoint.getWidth() / 2),
+                initialPoint.getLayoutY() + (initialPoint.getHeight() / 2)
+        );
+
+        initialPointCordsLabel.setText(centerOfInitialPoint.toString());
     }
 
-    private void addNewHaarAndSetListeners(boolean isRotated) {
+    private void setInitialPointListeners() {
 
-        if (!isRotated) {
-            HaarFeature newHaarFeature = new HaarFeature();
+        DragResizeUtil initialPointResizer = new DragResizeUtil(initialPoint, (int) imgWidth, (int) imgHeight);
 
-            (new DragResizeMod(newHaarFeature, imgWidth, imgHeight)).setNodeRotated(false).makeDraggableAndResizable();
+        initialPointResizer.setMarginsForDrag((int) (initialPoint.getWidth() / 2),
+                (int) (initialPoint.getHeight() / 2));
+        initialPointResizer.makeOnlyDraggable();
 
-            imageViewPane.getChildren().add(newHaarFeature);
-            haarListView.getItems().add(newHaarFeature);
+        initialPoint.addEventFilter(MouseEvent.MOUSE_DRAGGED, (t) -> setInitialPointLabel());
+    }
 
-        } else {
-            TiltedHaarPolygon tiltedHaarPolygon = new TiltedHaarPolygon();
+    private void setHaarFeatureListeners(HaarFeature newFeature) {
 
-            (new DragResizeMod(tiltedHaarPolygon, imgWidth, imgHeight)).setNodeRotated(true).makeDraggableAndResizable();
+        ((Node) newFeature).addEventFilter(MouseEvent.MOUSE_PRESSED, event ->
+                setListViewSelection((HaarFeature) event.getSource()));
 
-            imageViewPane.getChildren().add(tiltedHaarPolygon);
-            haarListView.getItems().add(tiltedHaarPolygon);
+        DragResizeUtil dragResizeUtil = new DragResizeUtil((Node) newFeature, (int) imgWidth, (int) imgHeight);
+
+        if (newFeature instanceof RectangleHaarFeature) {
+            dragResizeUtil.setNodeRotated(false);
+        } else if (newFeature instanceof TiltedRectangleHaarFeature) {
+            dragResizeUtil.setNodeRotated(true);
         }
 
+        dragResizeUtil.makeDraggableAndResizable();
+
+        imageViewPane.getChildren().add((Node) newFeature);
+        haarListView.getItems().add(newFeature);
+
         haarListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            IHaar selectedItem = haarListView.getSelectionModel().getSelectedItem();
+            HaarFeature selectedItem = haarListView.getSelectionModel().getSelectedItem();
             if (selectedItem != null) {
                 setCurrentHaarRectangleLabels(selectedItem);
             }
@@ -222,25 +261,40 @@ public class MainWindowController {
         haarListView.getSelectionModel().selectLast();
     }
 
-    @FXML
-    public void handleDeleteHaar(ActionEvent actionEvent) {
-        IHaar selectedItem = haarListView.getSelectionModel().getSelectedItem();
+    private void setCurrentHaarRectangleLabels(HaarFeature haarFeature) {
 
-        if (selectedItem != null) {
-            selectedItem.getColorProperty().unbind();
-            selectedItem.getNameProperty().unbind();
+        RectangleBound bounds = haarFeature.getBoundsPoints();
 
-            haarListView.getItems().remove(selectedItem);
-            imageViewPane.getChildren().remove(selectedItem);
+        rectangleWidthHeightLabel.setText(
+                String.format(" %4d  x  %4d", haarFeature.getWidthInteger(), haarFeature.getHeightInteger())
+        );
 
-            haarListView.refresh();
-        }
+        pointALabel.setText(bounds.a.toString());
+        pointBLabel.setText(bounds.b.toString());
+        pointCLabel.setText(bounds.c.toString());
+        pointDLabel.setText(bounds.d.toString());
+
+        int area = haarFeature.getArea();
+        long sumOfArea = integralCreator.getSumOfArea(haarFeature);
+
+        rectangleAreaLabel.setText(nf.format(area));
+        sumOfPixelsLabel.setText(nf.format(sumOfArea));
+
+        avgOfPixelsLabel.setText(String.format("%4.1f", (double) sumOfArea / area));
+
+        fromInitialPointDistanceLabel.setText(getDistanceFromInitialPoint(haarFeature).toString());
+    }
+
+    private void setListViewSelection(HaarFeature selection) {
+        haarListView.getSelectionModel().select(selection);
     }
 
     private void openImage(File file) {
+
         if (file == null) {
             return;
         }
+
         try {
             Image myImg = new Image(file.toURI().toString());
 
@@ -261,10 +315,10 @@ public class MainWindowController {
             imageView.setFitHeight(imgHeight);
 
             imageView.setImage(transformImage(myImg));
-        } catch (Exception exc) {
-            exc.printStackTrace();
-        }
 
+        } catch (Exception exc) {
+            System.err.println("Cannot open img!");
+        }
     }
 
     private Image transformImage(Image inputImage) throws Exception {
@@ -273,66 +327,31 @@ public class MainWindowController {
         int imgHeight = (int) inputImage.getHeight();
 
         Image grayScaleImage = convertToGrayScale(inputImage);
-        byte[] grayScaleByteArray = GrayScaleConverter.getGrayScaleByteArray();
+        byte[] grayScaleByteArray = GrayScaleConverter.getGrayScaleByteArray(inputImage);
 
-        imageCreator = new IntegralImage(grayScaleByteArray, imgWidth, imgHeight);
+        integralCreator = new IntegralImageCreator(grayScaleByteArray, imgWidth, imgHeight);
 
         return grayScaleImage;
     }
 
-    private void setCurrentHaarRectangleLabels(IHaar haarFeature) {
-
-        MyBounds bounds = haarFeature.getBoundsPoints();
-
-        rectangleWidthHeightLabel.setText(
-                String.format(" %4d  x  %4d", haarFeature.getIntegerWidth(), haarFeature.getIntegerHeight())
-        );
-
-        pointALabel.setText(bounds.a.toString());
-        pointBLabel.setText(bounds.b.toString());
-        pointCLabel.setText(bounds.c.toString());
-        pointDLabel.setText(bounds.d.toString());
-
-        int area = haarFeature.getArea();
-        long sumOfArea = imageCreator.getSumOfArea(haarFeature);
-
-        rectangleArealabel.setText(nf.format(area));
-        sumOfPixelsLabel.setText(nf.format(sumOfArea));
-
-        avgLabel.setText(String.format("%4.1f", (double) sumOfArea / area));
-
-        fromInitialPointDistanceLabel.setText(getDistanceFromInitialPoint(haarFeature).toString());
-    }
-
-    private MyPoint getDistanceFromInitialPoint(IHaar haar) {
-        return new MyPoint(haar.getIntegerX() - initialPoint.getLayoutX() - 5, haar.getIntegerY() - initialPoint
+    private Point getDistanceFromInitialPoint(HaarFeature haar) {
+        return new Point(haar.getStartPointX() - initialPoint.getLayoutX() - 5, haar.getStartPointY() - initialPoint
                 .getLayoutY() - 5);
     }
 
-    private <T extends Event> void setInitialPointLabel() {
+    private static class HaarListViewCell extends ListCell<HaarFeature> {
 
-        MyPoint centerOfInitialPoint = new MyPoint(
-                initialPoint.getLayoutX() + (initialPoint.getWidth() / 2),
-                initialPoint.getLayoutY() + (initialPoint.getHeight() / 2)
-        );
-
-        initialPointLabel.setText((centerOfInitialPoint.toString()));
-    }
-
-
-    private static class HaarListViewCell extends ListCell<IHaar> {
-
-        HBox hbox;
-        TextField nameField;
-        ColorPicker colorPicker;
-        Label isRotatedLabel;
+        private HBox hbox;
+        private TextField nameField;
+        private ColorPicker colorPicker;
+        private Label isRotatedLabel;
 
         HaarListViewCell() {
             super();
         }
 
         @Override
-        public void updateItem(IHaar item, boolean isEmpty) {
+        public void updateItem(HaarFeature item, boolean isEmpty) {
             super.updateItem(item, isEmpty);
 
             if (isEmpty || item == null) {
@@ -341,23 +360,21 @@ public class MainWindowController {
                 this.setGraphic(null);
 
             } else {
+                hbox = new HBox();
 
+                colorPicker = new ColorPicker(item.getColorProperty().getValue());
                 isRotatedLabel = new Label(" ");
+                nameField = new TextField(item.getNameProperty().get());
+
                 isRotatedLabel.prefWidth(50);
                 isRotatedLabel.minWidth(50);
                 isRotatedLabel.maxWidth(50);
 
-                nameField = new TextField(item.getNameProperty().get());
-                nameField.prefWidth(100);
-                nameField.setMinWidth(100);
-                nameField.setMaxWidth(100);
-
-                hbox = new HBox();
-                colorPicker = new ColorPicker(item.getColorProperty().getValue());
-                hbox.getChildren().addAll(isRotatedLabel, colorPicker, nameField);
+                nameField.prefWidth(95);
+                nameField.setMinWidth(95);
+                nameField.setMaxWidth(95);
 
                 item.getColorProperty().bind(colorPicker.valueProperty());
-
                 item.getNameProperty().bind(nameField.textProperty());
 
                 if (item.isRotated()) {
@@ -366,14 +383,15 @@ public class MainWindowController {
                     isRotatedLabel.setText(" ");
                 }
 
+                hbox.getChildren().addAll(isRotatedLabel, colorPicker, nameField);
+
                 this.setGraphic(hbox);
             }
         }
 
         @Override
-        public void commitEdit(IHaar newValue) {
+        public void commitEdit(HaarFeature newValue) {
             super.commitEdit(newValue);
-
         }
     }
 }

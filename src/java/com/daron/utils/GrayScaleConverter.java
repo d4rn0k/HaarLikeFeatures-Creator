@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 public class GrayScaleConverter {
 
     // RGB weight for RGB -> 8bit grayscale conversion
-    // Via ImagePlus Page Weighted Conversion
+    // Scales from ImagePlus web page weighted conversion
     // Could be: 1/3, 1/3, 1/3
     private static final double rw = 0.299;
     private static final double gw = 0.587;
@@ -20,13 +20,11 @@ public class GrayScaleConverter {
 
     public static Image convertToGrayScale(Image inputImage) {
 
-        int imgWidth = (int) inputImage.getWidth();
-        int imgHeight = (int) inputImage.getHeight();
-
-        WritableImage outputImage = new WritableImage(imgWidth, imgHeight);
-
+        final int imgWidth = (int) inputImage.getWidth();
+        final int imgHeight = (int) inputImage.getHeight();
         final int channels = 4;
 
+        WritableImage outputImage = new WritableImage(imgWidth, imgHeight);
         WritablePixelFormat<ByteBuffer> byteBufferWritablePixelFormat = WritablePixelFormat.getByteBgraInstance();
 
         ByteBuffer readBuffer = ByteBuffer.allocate(channels * imgWidth);
@@ -69,9 +67,9 @@ public class GrayScaleConverter {
         return outputImage;
     }
 
-    public static byte[] getGrayScaleByteArray() throws Exception {
+    public static byte[] getGrayScaleByteArray(Image inputImage) {
         if (grayScaleByteArray == null) {
-            throw new Exception("Gray scale byte array is empty!\nUse convertToGrayScale method First!!");
+            convertToGrayScale(inputImage);
         }
 
         return grayScaleByteArray;

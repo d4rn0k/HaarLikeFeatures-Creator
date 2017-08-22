@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import java.util.List;
 
-@XmlRootElement(name = "HaarFeature")
+@XmlRootElement(name = "RectangleHaarFeature")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class XMLHaarFeature {
 
@@ -18,7 +18,6 @@ public class XMLHaarFeature {
     private final List<XMLHaar> haarFeature;
 
     public XMLHaarFeature() {
-
         initialPointX = 0;
         initialPointY = 0;
         haarFeature = null;

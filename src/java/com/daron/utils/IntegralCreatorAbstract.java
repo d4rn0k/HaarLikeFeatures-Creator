@@ -1,6 +1,6 @@
 package com.daron.utils;
 
-import com.daron.haar.features.IHaar;
+import com.daron.haar.features.HaarFeature;
 
 public abstract class IntegralCreatorAbstract {
 
@@ -18,13 +18,13 @@ public abstract class IntegralCreatorAbstract {
 
     abstract void calculate();
 
-    abstract long getNormalValFrom(int x, int y);
+    abstract long getSummedValueForPoint(int x, int y);
 
-    abstract long getTiltedValFrom(int x, int y);
+    abstract long getTiltedSummedValueForPoint(int x, int y);
 
-    abstract long getPow2tValFrom(int x, int y);
+    abstract long getPower2SummedValueForPoint(int x, int y);
 
-    public long getSumOfArea(IHaar haar) {
+    public long getSumOfArea(HaarFeature haar) {
         if (haar.isRotated()) {
             return getTiltedSumOfArea(haar);
         } else {
@@ -32,32 +32,32 @@ public abstract class IntegralCreatorAbstract {
         }
     }
 
-    private long getNormalSumOfArea(IHaar haar) {
+    private long getNormalSumOfArea(HaarFeature haar) {
 
-        MyBounds bounds = haar.getBoundsPoints();
+        RectangleBound bounds = haar.getBoundsPoints();
 
-        int NWX = bounds.a.getX();
-        int NWY = bounds.a.getY();
-        int SEX = bounds.d.getX();
-        int SEY = bounds.d.getY();
+        int nwX = bounds.a.getX();
+        int nwY = bounds.a.getY();
+        int seX = bounds.c.getX();
+        int seY = bounds.c.getY();
 
-        return getSumOfArea(NWX, NWY, SEX, SEY);
+        return getSumOfArea(nwX, nwY, seX, seY);
     }
 
-    private long getSumOfArea(int NWX, int NWY, int SEX, int SEY) {
+    private long getSumOfArea(int nwX, int nwY, int seX, int seY) {
         long sumArea = 0;
 
         try {
 
-            if (!isInBounds(NWX, NWY, SEX, SEY)) {
-                System.err.println("Over bounds! nwX=" + NWX + " nwY=" + NWY + " seX= " + SEX + " seY" + SEY);
+            if (!isInBounds(nwX, nwY, seX, seY)) {
+                System.err.println("Over bounds! nwX=" + nwX + " nwY=" + nwY + " seX= " + seX + " seY" + seY);
                 return 0;
             }
 
-            sumArea = getNormalValFrom(SEX, SEY) +
-                    getNormalValFrom(NWX, NWY) -
-                    getNormalValFrom(SEX, NWY) -
-                    getNormalValFrom(NWX, SEY);
+            sumArea = getSummedValueForPoint(seX, seY) +
+                    getSummedValueForPoint(nwX, nwY) -
+                    getSummedValueForPoint(seX, nwY) -
+                    getSummedValueForPoint(nwX, seY);
         } catch (Exception exc) {
             exc.printStackTrace();
         }
@@ -65,16 +65,16 @@ public abstract class IntegralCreatorAbstract {
         return sumArea;
     }
 
-    private long getTiltedSumOfArea(IHaar haarFeature) {
+    private long getTiltedSumOfArea(HaarFeature haarFeature) {
         long sumArea = 0;
 
         try {
 
-            int w = haarFeature.getIntegerWidth();
-            int h = haarFeature.getIntegerHeight();
+            int w = haarFeature.getWidthInteger();
+            int h = haarFeature.getHeightInteger();
 
-            int x = haarFeature.getIntegerX();
-            int y = haarFeature.getIntegerY();
+            int x = haarFeature.getStartPointX();
+            int y = haarFeature.getStartPointY();
 
             sumArea = getSquaredValAt(x + w - h, y + w + h)
                     + getSquaredValAt(x, y)
@@ -92,22 +92,22 @@ public abstract class IntegralCreatorAbstract {
         if (x <= -1 || y <= -1) {
             return 0;
         }
-        long answer = 0;
+        long outputValue = 0;
 
         try {
 
-            answer = getTiltedValFrom(x, y);
+            outputValue = getTiltedSummedValueForPoint(x, y);
 
         } catch (Exception exc) {
             System.err.println("Over bounds! x=" + x + " y=" + y);
         }
 
-        return answer;
+        return outputValue;
     }
 
-    private boolean isInBounds(int NWX, int NWY, int SEX, int SEY) {
-        return NWX >= 0 && NWY >= 0 && SEX >= 0 && SEY >= 0 &&
-                NWX <= imgWidth && SEX <= imgWidth &&
-                NWY <= imgHeight && SEY <= imgHeight;
+    private boolean isInBounds(int nwX, int nwY, int seX, int seY) {
+        return nwX >= 0 && nwY >= 0 && seX >= 0 && seY >= 0 &&
+                nwX <= imgWidth && seX <= imgWidth &&
+                nwY <= imgHeight && seY <= imgHeight;
     }
 }
