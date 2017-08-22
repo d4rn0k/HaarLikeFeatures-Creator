@@ -9,7 +9,8 @@ digital features commonly used in object recognition on images. There are two ma
  * Tilted rectangle
 
 
-Screenshoot:
+Screenshot:
+
 ![Screenshot](docs/images/screenshot.png?raw=true "Screenshot Windows 10")
 
 **Description:**
