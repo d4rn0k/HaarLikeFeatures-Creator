@@ -1,24 +1,30 @@
-Haar like features Creator
+Haar-like features Creator
 --------
 Graphical tool for creating xml features on images
 
 
 ### What is Haar-like feature?
-digital features commonly used in object recognition on images. There are two main types of that features:
+digital features commonly used in object recognition on images.
+ There are two main types of that features:
  * Rectangle
  * Tilted rectangle
 
+Screenshot:
 
-Screenshoot:
 ![Screenshot](docs/images/screenshot.png?raw=true "Screenshot Windows 10")
 
 **Description:**
 1. Initial point
-2. Rectangle type Haar like feature
-3. Rotated rectangle type Haar like feature
+2. Rectangle type Haar-like feature
+3. Rotated rectangle type Haar-like feature
 4. Haar-like features list-box
 5. Position of initial point
-6. Calculated data of selected rectangle
+6. Calculated data of selected rectangle:
+
+- 4 bounds points
+- Area
+- Sum of pixels in area
+- Average of pixels in area
 
 ### How to use?
 
