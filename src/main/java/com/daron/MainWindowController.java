@@ -13,6 +13,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -34,15 +36,13 @@ import static com.daron.utils.GrayScaleConverter.convertToGrayScale;
 @XmlRootElement
 public class MainWindowController {
 
+    private final NumberFormat nf = NumberFormat.getNumberInstance(Locale.getDefault());
+    @FXML
+    public Pane imageViewPane;
     private IntegralCreatorAbstract integralCreator;
     private double imgWidth;
     private double imgHeight;
     private Canvas initialPoint;
-    private final NumberFormat nf = NumberFormat.getNumberInstance(Locale.getDefault());
-
-    @FXML
-    public Pane imageViewPane;
-
     @FXML
     private ListView<HaarFeature> haarListView;
     @FXML
@@ -341,7 +341,7 @@ public class MainWindowController {
 
     private static class HaarListViewCell extends ListCell<HaarFeature> {
 
-        private HBox hbox;
+
         private TextField nameField;
         private ColorPicker colorPicker;
         private Label isRotatedLabel;
@@ -360,19 +360,15 @@ public class MainWindowController {
                 this.setGraphic(null);
 
             } else {
-                hbox = new HBox();
+                GridPane gridPane = new GridPane();
+
+                gridPane.getColumnConstraints().add(new ColumnConstraints(15));
+                gridPane.getColumnConstraints().add(new ColumnConstraints(100));
+                gridPane.getColumnConstraints().add(new ColumnConstraints(120));
 
                 colorPicker = new ColorPicker(item.getColorProperty().getValue());
                 isRotatedLabel = new Label(" ");
                 nameField = new TextField(item.getNameProperty().get());
-
-                isRotatedLabel.prefWidth(50);
-                isRotatedLabel.minWidth(50);
-                isRotatedLabel.maxWidth(50);
-
-                nameField.prefWidth(95);
-                nameField.setMinWidth(95);
-                nameField.setMaxWidth(95);
 
                 item.getColorProperty().bind(colorPicker.valueProperty());
                 item.getNameProperty().bind(nameField.textProperty());
@@ -383,9 +379,11 @@ public class MainWindowController {
                     isRotatedLabel.setText(" ");
                 }
 
-                hbox.getChildren().addAll(isRotatedLabel, colorPicker, nameField);
+                gridPane.add(isRotatedLabel, 0, 0);
+                gridPane.add(colorPicker, 1, 0);
+                gridPane.add(nameField, 2, 0);
 
-                this.setGraphic(hbox);
+                this.setGraphic(gridPane);
             }
         }
 

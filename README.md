@@ -1,17 +1,38 @@
 Haar-like features Creator
 --------
-Graphical tool for creating xml features on images
+Graphical tool for creating Haar-like rectangle based features on images
+
 
 
 ### What is Haar-like feature?
-digital features commonly used in object recognition on images.
+Digital features commonly used in object recognition on images.
  There are two main types of that features:
  * Rectangle
  * Tilted rectangle
+  
+For example, we can use difference between sum of pixels of two areas, and check relation they describe.
 
-Screenshot:
+This difference is then used to categorize subsections of an image.
+ 
+For example, let us say we have an image database with human faces. 
+It is a common observation that among all faces the region of the eyes is darker than the region of the cheeks.
+Therefore a common Haar feature for face detection is a set of two adjacent rectangles that lie above the eye and 
+the cheek region. 
+The position of these rectangles is defined relative to a detection window that acts like a bounding box to the 
+target object - the face in this case.
 
-![Screenshot](docs/images/screenshot.png?raw=true "Screenshot Windows 10")
+
+
+
+### Why?
+For debugging and checking Haar-like features calculation.
+
+
+<p align="center">
+  <img src="https://github.com/d4rn0k/HaarLikeFeatures-Creator/raw/master/docs/images/screenshot.png?raw=true" 
+  alt="Screenshot Windows 10"/>
+</p>
+
 
 **Description:**
 1. Initial point
@@ -23,16 +44,40 @@ Screenshot:
 
 - 4 bounds points
 - Area
-- Sum of pixels in area
-- Average of pixels in area
+- Sum of pixels in the area
+- Average of pixels in the area
+
+ 255 - Max value for 1 Byte pixel = White
+ 
+ 0   - Min value for 1 Byte pixel = Black
+
+
+### How to run?
+
+##### Clone
+```
+git clone https://github.com/d4rn0k/HaarLikeFeatures-Creator.git
+```
+
+##### Compile
+```
+cd HaarLikeFeatures-Creator/
+mvn install 
+```
+
+##### Run
+```
+java -jar target/haar-like-feature-creator-1.0-SNAPSHOT.jar
+```
 
 ### How to use?
-
 Add new rectangle or tilted rectangle via menu, or right box.
-You can move initial point and rectangles. Rectangles also can be resized via dragging on edges.
-Finally, you can save as .xml with File -> "Save Haar-like features as .xml" option.
+You can move initial point and rectangles. 
+Rectangles also can be resized via dragging on edges.
+Finally, you can save your work as .xml file with option:   
+**File** -> "**Save Haar-like features as .xml**".
 
-Example output **xml**:
+### Example output xml:
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <HaarFeature>

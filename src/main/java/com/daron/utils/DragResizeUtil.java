@@ -11,25 +11,16 @@ import static com.daron.utils.MouseStates.getCursorForState;
 
 public class DragResizeUtil {
 
-    private interface OnDragResizeEventListener {
-        void onDrag(Event event, Node node, double x, double y, double w, double h);
-
-        void onResize(Event event, Node node, double x, double y, double w, double h);
-    }
-
-    private final Node node;
-    private final OnDragResizeEventListener listener;
     private final static int minElementSizeWidth = 15;
     private final static int minElementSizeHeight = 15;
+    private final Node node;
+    private final OnDragResizeEventListener listener;
     private MouseStates mouseState = MouseStates.DEFAULT;
     private double initialClickX, initialClickY, nodeX, nodeY, nodeH, nodeW;
-
     private int maxParentSizeForDragW;
     private int maxParentSizeForDragH;
-
     private int marginDragW = 0;
     private int marginDragH = 0;
-
     private boolean isNodeRotated = false;
     private boolean isOnlyDraggable = false;
 
@@ -103,7 +94,6 @@ public class DragResizeUtil {
         marginDragW = width;
         marginDragH = height;
     }
-
 
     private void mouseOver(MouseEvent event) {
         node.setCursor(getCursorForState(currentMouseState(event)));
@@ -190,7 +180,6 @@ public class DragResizeUtil {
 
         }
     }
-
 
     private void resizeTiltedHaarFeature(Node node, MouseStates mouseState, MouseEvent event) {
         HaarFeature rotatedRectangle = (HaarFeature) event.getSource();
@@ -434,7 +423,6 @@ public class DragResizeUtil {
         }
     }
 
-
     private boolean intersect(double side, double point) {
         int resizeEventAreaMargin = 5;
         return side + resizeEventAreaMargin > point && side - resizeEventAreaMargin < point;
@@ -488,7 +476,6 @@ public class DragResizeUtil {
         return state;
     }
 
-
     private double parentX(double localX) {
         if (isNodeRotated) {
             return localX;
@@ -531,6 +518,12 @@ public class DragResizeUtil {
         }
 
         return node.getBoundsInParent().getHeight();
+    }
+
+    private interface OnDragResizeEventListener {
+        void onDrag(Event event, Node node, double x, double y, double w, double h);
+
+        void onResize(Event event, Node node, double x, double y, double w, double h);
     }
 
 }
